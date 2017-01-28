@@ -134,7 +134,7 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
             System.out.println("Before requesting the body");
             // Request body
             //StringEntity reqEntity = new StringEntity("{body}");
-            StringEntity reqEntity = new StringEntity("{ \"url\": \"http://media.gettyimages.com/videos/face-of-a-happy-boy-video-id104338887?s=640x640\" }");
+            StringEntity reqEntity = new StringEntity("{ \"url\": \"https://cdn.pixabay.com/photo/2014/10/25/00/28/selfie-501994_1280.jpg\" }");
             request.setEntity(reqEntity);
 
             System.out.println("After requesting the body");

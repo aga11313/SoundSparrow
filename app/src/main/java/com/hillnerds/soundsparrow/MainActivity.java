@@ -12,9 +12,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //JavaSample javaSample = new JavaSample();
-
-        //javaSample.emotionRecognition();
+        
 
         EmotionService emotionService = new EmotionService();
         emotionService.execute();
