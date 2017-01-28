@@ -1,0 +1,102 @@
+Happy
+-----
+
+ - major scales
+
+Sad
+----
+
+ - minor scales
+
+
+Scale generation algorithm:
+
+c, c#, d, e, 
+
+
+sadness - major scales
+hapiness - minor scales
+anger - b major, faster and more abrupt
+
+Major scales:
+
+2 - 2 - 1 - 2 - 2 - 2 - 1
+
+Minor scales:
+
+2 - 1 - 2 - 2 - 1 - 2 - 2
+
+Step 0.5: Recieve the emotion.
+Step 0.75: Choose the major, minor or b major.
+Step1 : choose the starting note.
+Step2 : generate the scale in which all the notes will be chosen
+
+Step 3 
+
+Midi code:
+----------
+
+Note on
+-------
+1001 CCCC
+0PPP PPPP
+0VVV VVVV
+
+where CCCC is the midid channel??? from 0 to 15
+PPP PPPP is the pitch value form 0 to 127
+VVV VVVV is the velocity value from 0 to 127
+
+C is represented by 60 follows in half steps
+
+Note off
+---------
+1000 CCCC
+0PPP PPPP
+0VVV VVVV
+
+
+FOr each note
+--------------
+
+generate the pitch from a range 40 to 100
+generate the note from a range of 36 to 84
+
+generate a start note sequence, generate an endnote sequence
+
+For example a singe c note at 64:
+
+1001 0000
+0011 1110
+0100 0000
+
+1000 0000
+0011 1110
+0000 0000
+
+
+
+public void emotion(String em){
+
+    if (em == "")
+
+}
+
+public String chooseStartingNote(int num){
+
+    
+
+}
+
+public void chooseTypeOfScale(String emotion){
+
+    //assign type of scale depending on the emotion that was transmitted
+
+}
+
+public void generate Scale (String startingNote){
+
+
+
+}
+
+
