@@ -62,7 +62,8 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
     @Override
     protected void onPostExecute(String result) {
 
-        double happiness = Double.parseDouble(result);
+        //COMMENTED OUT FOR TESTING
+        //double happiness = Double.parseDouble(result);
         /*
         Log.i("TAG", result);
 
