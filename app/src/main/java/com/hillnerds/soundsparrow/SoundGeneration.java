@@ -16,7 +16,7 @@ public class SoundGeneration {
     int[][] midi_file;
     public static String[] instrument_list = new String[] {"piano", "guitar", "trombone", "trumpet", "violin", "saxophone", "flute"};
     public static int[] instrument_list_midi_codes = new int[] {1,26,58,57,41,66,74};
-    public static int[][] instrument_range_list = new int[][] {{50, 70},{45, 70},{55, 70},{64, 80},{60,90},{53, 70},{73, 90}};
+    public static int[][] instrument_range_list = new int[][] {{40, 60},{45, 70},{55, 70},{64, 80},{60,90},{53, 70},{73, 90}};
 
     int number_of_channels = 4;
 
@@ -74,7 +74,7 @@ public class SoundGeneration {
 
         int random_duration = duration[random_generator.nextInt((2-0) + 1) + 0];
 
-        random_duration = 200;
+        //random_duration = 200;
 
         return random_duration;
 

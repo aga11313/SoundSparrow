@@ -31,6 +31,8 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
 
     public Random random_generator;
 
+    public boolean stop_pressed = true;
+
     public ArrayList<Channel> channel_list;
 
     @Override
@@ -77,10 +79,9 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
 
         sorted_midi_array = sort_midi_array(midi_array);
 
-        parse_midi_file(sorted_midi_array);
-
-        Log.i("Sound.java", "reached after midi generation");
-
+        while (stop_pressed) {
+            parse_midi_file(sorted_midi_array);
+        }
     }
 
     @Override
@@ -176,7 +177,7 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         Midi instrument_change = new Midi(192 + c.number, c.instrument, timestamp_counter);
         midi_array.add(instrument_change);
 
-        for (int i = 0; i < 32; i = i+2) {
+        for (int i = 0; i < 16; i = i+2) {
 
             int starting_code = SoundGeneration.generate_starting_code(c.number);
             int pitch = SoundGeneration.generate_pitch(random_generator, c.range_min, c.range_max);
