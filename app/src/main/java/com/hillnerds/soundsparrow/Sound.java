@@ -25,7 +25,7 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
     protected MidiDriver midi;
     protected MediaPlayer player;
 
-    protected int user_id = 112233;
+    protected int user_id;
     protected int emotion = 1;
     protected int random_seed = user_id;
 
@@ -45,6 +45,8 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         TextView textView = new TextView(this);
         textView.setTextSize(40);
         textView.setText(message);
+
+        //An arrayList of channels
 
         channel_list = new ArrayList<>();
         Channel channel1 = new Channel(112233, 1, 0, 1);
