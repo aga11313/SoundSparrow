@@ -15,7 +15,7 @@
             android:id="@+id/text1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/white"
+            android:background="@android:color/black"
             android:layout_weight="1.0"
             android:text="" />
 
@@ -23,7 +23,7 @@
             android:id="@+id/text2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/holo_green_light"
+            android:background="@android:color/black"
             android:layout_weight="1.0"
             android:text="" />
 
@@ -39,7 +39,7 @@
             android:id="@+id/text3"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/holo_blue_light"
+            android:background="@android:color/black"
             android:layout_weight="1.0"
             android:text="" />
 
@@ -47,7 +47,7 @@
             android:id="@+id/text4"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/holo_red_light"
+            android:background="@android:color/black"
             android:layout_weight="1.0"
             android:text="" />
 

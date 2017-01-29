@@ -86,6 +86,7 @@ public class BluetoothHelper {
         emotionBytes[0] = emotionToByte.get(emot);
         build.addManufacturerData(MANF_ID, "emot".getBytes());
         build.addManufacturerData(MANF_ID, emotionBytes);
+        build.setIncludeDeviceName(true);
 
         return build.build();
     }

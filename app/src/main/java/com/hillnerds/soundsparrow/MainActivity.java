@@ -19,8 +19,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
-
+import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -32,7 +33,9 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.READ_PHONE_STATE
     };
 
-    public String uuid;
+    public UUID uuid;
+    public String uuid_str;
+    public static long uuid_long;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +45,22 @@ public class MainActivity extends AppCompatActivity {
         askPermissions();
 
         TelephonyManager tManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        String uuid = tManager.getDeviceId();
+        String deviceId = tManager.getDeviceId();
+
+        // 32 characters so that correct number of hex octets
+        String uuidString = deviceId + deviceId + "00";
+        String correctFormatUuid = uuidString.substring(0, 8) + '-' +
+                uuidString.substring(8, 12) + '-' +
+                uuidString.substring(12, 16) + '-' +
+                uuidString.substring(16, 20) + '-' +
+                uuidString.substring(20, 32);
+
+
+        UUID uuid = UUID.fromString(correctFormatUuid);
+
+        long uuid_long = uuid.getMostSignificantBits();
+
+
     }
 
     public void openSound() {

@@ -30,12 +30,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".Sound" />
-        <activity
-            android:name=".BluetoothTest"
-            android:label="@string/title_activity_bluetooth_test"
-            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Questions" />
-        <activity android:name=".Visualisation"></activity>
     </application>
 
 </manifest>

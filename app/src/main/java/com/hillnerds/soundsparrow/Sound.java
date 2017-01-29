@@ -1,13 +1,16 @@
 package com.hillnerds.soundsparrow;
 
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import org.billthefarmer.mididriver.MidiDriver;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,10 +22,12 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
     protected MidiDriver midi;
     protected MediaPlayer player;
 
-    protected int user_id = 112233;
-    protected int random_seed = user_id;
+    protected long user_id = MainActivity.uuid_long;
+    protected long random_seed = user_id;
 
     public Random random_generator;
+    int channel_counter = 0;
+
 
     public ArrayList<Channel> channel_list;
 
@@ -35,8 +40,11 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         setContentView(R.layout.activity_sound);
 
         channel_list = new ArrayList<>();
-        Channel channel1 = new Channel(112233, 1, 0, 1);
+        Channel channel1 = new Channel(user_id, "happy", 0, 1);
         channel_list.add(channel1);
+
+        Channel channel2 = new Channel(55443322, "sad", 1, 1);
+        channel_list.add(channel2);
 
         //generate random number
         initialize_random_number_generator();
@@ -46,6 +54,10 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         if (midi != null) {
             midi.setOnMidiStartListener(this);
         }
+
+        generateColor("happy");
+        channel_counter++;
+        generateColor("sad");
     }
 
     @Override
@@ -67,6 +79,14 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         BluetoothHelper bHelp = new BluetoothHelper(this, new BluetoothHelper.SparrowDiscoveredCallback() {
             @Override
             public void onSparrowDiscovered(UUID uuid, String emotion, int rssi) {
+                Log.i("onSparrowDIscovered", "Yay");
+
+                long hi = uuid.getMostSignificantBits() & Long.MAX_VALUE;
+
+
+                Channel channel = new Channel(112233, "sad", channel_counter, 1);
+                channel_list.add(channel);
+                generateColor(emotion);
 
             }
         });
@@ -120,7 +140,7 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
     }
 
     public void initialize_random_number_generator() {
-        int random_seed_num = random_seed;
+        long random_seed_num = random_seed;
         random_generator = new Random(random_seed_num);
     }
 
@@ -214,5 +234,36 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
             }
         }
     }
+
+    public void generateColor(String emotion){
+
+        TextView text1 = (TextView)findViewById(R.id.text1);
+        TextView text2 = (TextView)findViewById(R.id.text2);
+        TextView text3 = (TextView)findViewById(R.id.text3);
+        TextView text4 = (TextView)findViewById(R.id.text4);
+
+        ArrayList<TextView> text_array = new ArrayList<>();
+        text_array.add(text1);
+        text_array.add(text2);
+        text_array.add(text3);
+        text_array.add(text4);
+
+        int[] warm_color_array = new int[] {Color.RED, Color.YELLOW, Color.MAGENTA};
+        int[] cold_color_array = new int[] {Color.BLUE, Color.CYAN, Color.GRAY, Color.GREEN};
+
+        if (emotion == "happy"){
+
+            text_array.get(channel_counter).setBackgroundColor(warm_color_array[random_generator.nextInt((2-0) +1) +0]);
+
+        } else if (emotion == "sad"){
+
+            text_array.get(channel_counter).setBackgroundColor(cold_color_array[random_generator.nextInt((2-0) +1) +0]);
+
+        } else {
+
+        }
+
+    }
+
 }
 

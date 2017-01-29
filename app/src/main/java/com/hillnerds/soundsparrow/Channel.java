@@ -8,14 +8,14 @@ import java.util.Random;
 
 public class Channel {
 
-    int id;
-    int emotion;
+    long id;
+    String emotion;
     int number;
     int instrument;
     int range_min;
     int range_max;
 
-    public Channel (int id, int emotion, int number, int instrument){
+    public Channel (long id, String emotion, int number, int instrument){
 
         this.id = id;
         this.emotion = emotion;

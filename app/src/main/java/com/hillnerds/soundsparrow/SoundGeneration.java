@@ -62,7 +62,12 @@ public class SoundGeneration {
 
     public static int generate_velocity(Random random_generator){
 
-        int random_generated_velocity = random_generator.nextInt((100 - 80) + 1) + 80;
+        //pass signal strength as well
+        //int random_generated_velocity = random_generator.nextInt((100 - 80) + 1) + 80;
+
+        int wifi = -80;
+
+        int random_generated_velocity = Math.abs(wifi);
 
         return random_generated_velocity;
 
