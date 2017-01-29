@@ -91,7 +91,7 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
 
                 Toast.makeText(getApplicationContext(), "We have sparrows in the garden", Toast.LENGTH_LONG);
             }
-        });
+        }, BluetoothHelper.getDeviceUUID(this));
         bHelp.bleStateMachine();
     }
 

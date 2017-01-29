@@ -44,20 +44,6 @@ public class MainActivity extends AppCompatActivity {
 
         askPermissions();
 
-        TelephonyManager tManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        String deviceId = tManager.getDeviceId();
-
-        // 32 characters so that correct number of hex octets
-        String uuidString = deviceId + deviceId + "00";
-        String correctFormatUuid = uuidString.substring(0, 8) + '-' +
-                uuidString.substring(8, 12) + '-' +
-                uuidString.substring(12, 16) + '-' +
-                uuidString.substring(16, 20) + '-' +
-                uuidString.substring(20, 32);
-
-
-        UUID uuid = UUID.fromString(correctFormatUuid);
-
 
     }
 

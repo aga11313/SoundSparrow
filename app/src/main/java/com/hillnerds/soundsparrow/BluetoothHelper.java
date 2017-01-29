@@ -13,6 +13,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.ParcelUuid;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -41,7 +42,7 @@ public class BluetoothHelper {
 
     private SparrowDiscoveredCallback discoveredCallback;
 
-    public BluetoothHelper(Context ctx, SparrowDiscoveredCallback cback) {
+    public BluetoothHelper(Context ctx, SparrowDiscoveredCallback cback, UUID uuid) {
         emotionToByte.put("happy", (byte) 0);
         emotionToByte.put("sad", (byte) 1);
         emotionToByte.put("neutral", (byte) 2);
@@ -54,10 +55,24 @@ public class BluetoothHelper {
         mBluetoothAdapter = ((BluetoothManager)
                 ctx.getSystemService(ctx.BLUETOOTH_SERVICE)).getAdapter();
 
-        adData = buildAdvertisingData(MainActivity.uuid, "happy");
+        adData = buildAdvertiseData(uuid, "happy");
         adSett = buildAdvertiseSettings();
     }
 
+    public static UUID getDeviceUUID(Context ctx) {
+        TelephonyManager tManager = (TelephonyManager)ctx.getSystemService(Context.TELEPHONY_SERVICE);
+        String deviceId = tManager.getDeviceId();
+
+        // 32 characters so that correct number of hex octets
+        String uuidString = deviceId + deviceId + "00";
+        String correctFormatUuid = uuidString.substring(0, 8) + '-' +
+                uuidString.substring(8, 12) + '-' +
+                uuidString.substring(12, 16) + '-' +
+                uuidString.substring(16, 20) + '-' +
+                uuidString.substring(20, 32);
+
+        return UUID.fromString(correctFormatUuid);
+    }
     public void bleStateMachine() {
         switch (currentBleState)
         {
@@ -157,10 +172,6 @@ public class BluetoothHelper {
 
                         @Override
                         public void onStartFailure(int errorCode) {
-                            if (errorCode == 2) {
-                                mBluetoothAdapter.disable();
-                                mBluetoothAdapter.enable();
-                            }
                             Log.w("AdvertiseTask", MessageFormat.format(
                                     "Advertising failed to start with code {0}",
                                     errorCode
