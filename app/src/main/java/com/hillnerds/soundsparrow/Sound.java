@@ -85,9 +85,11 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
                 long hi = uuid.getMostSignificantBits() & Long.MAX_VALUE;
 
 
-                Channel channel = new Channel(112233, "sad", channel_counter, 1);
+                Channel channel = new Channel(hi, "sad", channel_counter, 1);
                 channel_list.add(channel);
                 generateColor(emotion);
+
+                channel_counter++;
 
                 Toast.makeText(getApplicationContext(), "We have sparrows in the garden", Toast.LENGTH_LONG);
             }

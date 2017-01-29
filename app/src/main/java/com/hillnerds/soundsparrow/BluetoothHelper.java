@@ -18,6 +18,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -41,6 +42,7 @@ public class BluetoothHelper {
     private String[] byteToEmotion = new String[] {"happy", "sad", "neutral", "anger"};
 
     private SparrowDiscoveredCallback discoveredCallback;
+    private ArrayList<UUID> discovered = new ArrayList<UUID>();
 
     public BluetoothHelper(Context ctx, SparrowDiscoveredCallback cback, UUID uuid) {
         emotionToByte.put("happy", (byte) 0);
@@ -134,6 +136,10 @@ public class BluetoothHelper {
                             return;
                         }
                         UUID uuid = result.getScanRecord().getServiceUuids().get(0).getUuid();
+                        if (discovered.contains(uuid)) {
+                            return;
+                        }
+                        discovered.add(uuid);
                         String emot = byteToEmotion[manf_data[0]];
                         int rssi = result.getRssi();
                         discoveredCallback.onSparrowDiscovered(uuid, emot, rssi);
