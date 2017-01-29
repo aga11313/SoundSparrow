@@ -31,11 +31,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class BluetoothTest extends AppCompatActivity {
-    private String[] requested = new String[]{
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_ADMIN
-    };
 
     private BluetoothAdapter mBluetoothAdapter;
     private Handler bleHandler;
@@ -74,8 +69,6 @@ public class BluetoothTest extends AppCompatActivity {
         mBluetoothAdapter = ((BluetoothManager)
                 getSystemService(this.BLUETOOTH_SERVICE)).getAdapter();
 
-        askPermissions();
-
         adData = buildAdvertisingData(UUID.randomUUID(), "happy");
 
         bleStateMachine();
@@ -97,30 +90,6 @@ public class BluetoothTest extends AppCompatActivity {
             default:
                 // not actually expected to reach here
                 break;
-        }
-    }
-
-    protected void askPermissions() {
-        int idx = 0;
-        for (String permission : requested) {
-            int permissionCheck = ContextCompat.checkSelfPermission(this,
-                    permission);
-            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[] {permission},
-                        idx);
-            }
-            idx++;
-        }
-    }
-
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        if (grantResults.length == 0
-                || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this,
-                    MessageFormat.format("Permission {0} not granted", requested[requestCode]),
-                    Toast.LENGTH_LONG);
         }
     }
 
