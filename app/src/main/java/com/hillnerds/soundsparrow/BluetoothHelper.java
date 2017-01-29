@@ -53,7 +53,7 @@ public class BluetoothHelper {
         mBluetoothAdapter = ((BluetoothManager)
                 ctx.getSystemService(ctx.BLUETOOTH_SERVICE)).getAdapter();
 
-        adData = buildAdvertisingData(UUID.randomUUID(), "happy");
+        adData = buildAdvertisingData(MainActivity.uuid, "happy");
     }
 
     public void bleStateMachine() {

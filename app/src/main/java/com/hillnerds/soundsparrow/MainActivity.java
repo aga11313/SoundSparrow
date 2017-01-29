@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.READ_PHONE_STATE
     };
 
-    public UUID uuid;
+    public static UUID uuid;
     public String uuid_str;
     public static long uuid_long;
 
@@ -57,8 +57,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         UUID uuid = UUID.fromString(correctFormatUuid);
-
-        long uuid_long = uuid.getMostSignificantBits();
 
 
     }
