@@ -74,7 +74,7 @@ public class BluetoothTest extends AppCompatActivity {
         mBluetoothAdapter = ((BluetoothManager)
                 getSystemService(this.BLUETOOTH_SERVICE)).getAdapter();
 
-        AskPermissions();
+        askPermissions();
 
         adData = buildAdvertisingData(UUID.randomUUID(), "happy");
 
@@ -100,7 +100,7 @@ public class BluetoothTest extends AppCompatActivity {
         }
     }
 
-    protected void AskPermissions() {
+    protected void askPermissions() {
         int idx = 0;
         for (String permission : requested) {
             int permissionCheck = ContextCompat.checkSelfPermission(this,
