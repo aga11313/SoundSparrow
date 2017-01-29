@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">SoundSparrow</string>
     <color name="white">#006666</color>
+    <string name="title_activity_bluetooth_test">BluetoothTest</string>
 </resources>
