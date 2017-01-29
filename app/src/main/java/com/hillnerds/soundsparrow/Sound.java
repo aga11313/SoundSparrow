@@ -76,7 +76,6 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
 
         if (player != null)
             player.stop();
-
     }
 
     public void pauseClick(View v) {

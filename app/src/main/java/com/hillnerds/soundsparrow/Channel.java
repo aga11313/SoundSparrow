@@ -31,8 +31,8 @@ public class Channel {
 
     public void generateInstrument(Random random){
 
-        //int instrument = random.nextInt((7 - 0) + 1) + 0;
-        int instrument  = 0;
+        int instrument = random.nextInt((6 - 0) + 1) + 0;
+        //int instrument  = 6;
 
         this.instrument = SoundGeneration.instrument_list_midi_codes[instrument];
 

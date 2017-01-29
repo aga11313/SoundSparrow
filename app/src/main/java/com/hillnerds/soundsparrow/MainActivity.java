@@ -1,5 +1,6 @@
 package com.hillnerds.soundsparrow;
 
+import android.content.Context;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -7,11 +8,15 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import java.text.MessageFormat;
+
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +31,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //TelephonyManager tManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        //String uuid = tManager.getDeviceId();
+
+        //Log.i("uuid", String.format("UUid: %1$d :", uuid));
         askPermissions();
     }
 

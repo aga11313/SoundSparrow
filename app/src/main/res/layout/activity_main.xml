@@ -20,4 +20,23 @@
         android:onClick="openSound"
         android:background="@mipmap/ic_launcher"/>
 
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@mipmap/bird"/>
+
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/edit_text"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/edit_text"
+        android:text="Hi :) whats your name?"/>
+
 </RelativeLayout>
