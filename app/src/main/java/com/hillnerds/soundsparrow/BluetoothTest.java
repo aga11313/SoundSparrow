@@ -2,7 +2,6 @@ package com.hillnerds.soundsparrow;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
@@ -12,7 +11,6 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.pm.PackageManager;
-import android.media.audiofx.Visualizer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,8 +25,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import java.security.Permission;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class BluetoothTest extends AppCompatActivity {
@@ -46,6 +45,8 @@ public class BluetoothTest extends AppCompatActivity {
     }
     private bleStates currentBleState = bleStates.SHOULD_SCAN;
     private AdvertiseData adData;
+    private final int MANF_ID = 42;
+    private Map<String, Byte> emotionToByte = new HashMap<String, Byte>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,11 @@ public class BluetoothTest extends AppCompatActivity {
             }
         });
 
+        emotionToByte.put("happy", (byte) 1);
+        emotionToByte.put("sad", (byte) 2);
+        emotionToByte.put("neutral", (byte) 3);
+        emotionToByte.put("anger", (byte) 4);
+
         bleHandler = new Handler();
 
         mBluetoothAdapter = ((BluetoothManager)
@@ -70,7 +76,7 @@ public class BluetoothTest extends AppCompatActivity {
 
         AskPermissions();
 
-        adData = buildAdvertisingData();
+        adData = buildAdvertisingData(UUID.randomUUID(), "happy");
 
         bleStateMachine();
     }
@@ -118,10 +124,18 @@ public class BluetoothTest extends AppCompatActivity {
         }
     }
 
-    private AdvertiseData buildAdvertisingData() {
+    private AdvertiseData buildAdvertisingData(UUID uuid, String emot) {
         AdvertiseData.Builder build = new AdvertiseData.Builder();
-        ParcelUuid uuid = new ParcelUuid(UUID.randomUUID());
-        build.addServiceUuid(uuid);
+
+        // we are using service UUID for user/device ID
+        ParcelUuid puuid = new ParcelUuid(uuid);
+        build.addServiceUuid(puuid);
+
+        byte[] emotionBytes = new byte[1];
+        emotionBytes[0] = emotionToByte.get(emot);
+        build.addManufacturerData(MANF_ID, "emot".getBytes());
+        build.addManufacturerData(MANF_ID, emotionBytes);
+
         return build.build();
     }
 
