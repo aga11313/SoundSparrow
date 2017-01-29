@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_sound"
     android:layout_width="match_parent"
@@ -8,21 +8,16 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/white"
     tools:context="com.hillnerds.soundsparrow.Sound">
 
-    <Button
-        android:id="@+id/play_notes"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="Play some notes"
-        android:onClick="selfDestruct" />
-
-    <Button
-        android:id="@+id/stop_notes"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="Stop playing notes"
-        android:onClick="selfDestruct" />
+    <ImageButton
+        android:id="@+id/click_me"
+        android:layout_height="150dp"
+        android:layout_width="150dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@mipmap/stop"/>
 
 
-</LinearLayout>
+</RelativeLayout>

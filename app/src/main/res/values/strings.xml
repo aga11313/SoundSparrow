@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SoundSparrow</string>
+    <color name="white">#006666</color>
 </resources>
