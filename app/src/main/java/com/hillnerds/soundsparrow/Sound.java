@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.billthefarmer.mididriver.MidiDriver;
 
@@ -88,6 +89,7 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
                 channel_list.add(channel);
                 generateColor(emotion);
 
+                Toast.makeText(getApplicationContext(), "We have sparrows in the garden", Toast.LENGTH_LONG);
             }
         });
         bHelp.bleStateMachine();
