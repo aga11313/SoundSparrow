@@ -518,7 +518,7 @@ public class Camera2RawFragment extends Fragment
                     "RAW_" + currentDateTime + ".dng");
             File jpegFile = new File(Environment.
                     getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-                    "JPEG_" + currentDateTime + ".jpg");
+                    "face" + ".jpg");
 
             // Look up the ImageSaverBuilder for this request and update it with the file name
             // based on the capture start time.
@@ -1351,6 +1351,8 @@ public class Camera2RawFragment extends Fragment
          */
         private final RefCountedAutoCloseable<ImageReader> mReader;
 
+
+
         private ImageSaver(Image image, File file, CaptureResult result,
                            CameraCharacteristics characteristics, Context context,
                            RefCountedAutoCloseable<ImageReader> reader) {
@@ -1423,6 +1425,8 @@ public class Camera2RawFragment extends Fragment
                         Log.i(TAG, "-> uri=" + uri);
                     }
                 });
+                EmotionService emotionService = new EmotionService();
+                emotionService.execute(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath());
             }
         }
 

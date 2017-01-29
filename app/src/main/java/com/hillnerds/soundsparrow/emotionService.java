@@ -5,7 +5,9 @@ package com.hillnerds.soundsparrow;
  */
 
 import android.os.AsyncTask;
+import android.os.Environment;
 
+import com.google.gson.Gson;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -41,17 +43,17 @@ import cz.msebera.android.httpclient.util.EntityUtils;
 @SuppressWarnings("deprecation")
 public class EmotionService extends AsyncTask<String, Integer, String> {
 
-    private static final String storageURL = "BLOB_STORAGE_URL";
-    private static final String storageContainer = "NAME_OF_BLOB_STORAGE_CONTAINER";
-    private static final String storageConnectionString = "BLOB_STORAGE_CONNECTION_STRING";
+    private static final String storageURL = "https://soundsparrow.blob.core.windows.net/sparrow";
+    private static final String storageContainer = "sparrow";
+    private static final String storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=soundsparrow;AccountKey=jZzZsr8d9TCaX/8lrIWkoZ5My9AY08nX5XHrr96rnWsG0yXl6vmp7iwFpzMK+EFPM75BNLNajEPyMnEgQDXsbg==";
     private static final String emotionPrimaryKey = "d0372ad59f6141889b33032fb742e04f";
-    private static final String imageName = "EMOTION_API_PRIMARY_KEY";
+    private static final String imageName = "face.jpg";
 
     @Override
     protected String doInBackground(String... params) {
 
         //Store image in blob storage
-        //storeImageInBlobStorage(params[0]);
+        storeImageInBlobStorage(params[0]);
 
         //Get the happiness score from API
         String result = getEmotionScore();
@@ -64,33 +66,6 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
 
         //COMMENTED OUT FOR TESTING
         //double happiness = Double.parseDouble(result);
-        /*
-        Log.i("TAG", result);
-
-        if(happiness > 0.5){
-            Log.i("TAG", "You like");
-
-            Toast.makeText(getApplicationContext(), "Like!", Toast.LENGTH_SHORT).show();
-
-            Intent mainActivity = new Intent(TakePicture.this, MainActivity.class);
-            mainActivity.putExtra("ImageListIterator", i);
-            mainActivity.putExtra("Result", "like");
-            mainActivity.putExtra("CallMain", true);
-            startActivity(mainActivity);
-
-        }else{
-            Log.i("TAG", "You dislike");
-
-            Toast.makeText(getApplicationContext(), "Dislike!", Toast.LENGTH_SHORT).show();
-
-            Intent mainActivity = new Intent(TakePicture.this, MainActivity.class);
-            mainActivity.putExtra("ImageListIterator", i);
-            mainActivity.putExtra("Result", "dislike");
-            mainActivity.putExtra("CallMain", true);
-            startActivity(mainActivity);
-
-        }
-        */
     }
 
     protected void storeImageInBlobStorage(String imgPath){
@@ -107,7 +82,7 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
 
             // Create or overwrite the "face.jpeg" blob with contents from a local file.
             CloudBlockBlob blob = container.getBlockBlobReference(imageName);
-            File source = new File(imgPath);
+            File source = new File(imgPath + '/' + imageName);
             blob.upload(new FileInputStream(source), source.length());
         }
         catch (Exception e)
@@ -130,12 +105,12 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
             URI uri = builder.build();
             HttpPost request = new HttpPost(uri);
             request.setHeader("Content-Type", "application/json");
-            request.setHeader("Ocp-Apim-Subscription-Key", "d0372ad59f6141889b33032fb742e04f");
+            request.setHeader("Ocp-Apim-Subscription-Key", emotionPrimaryKey);
 
             System.out.println("Before requesting the body");
             // Request body
             //StringEntity reqEntity = new StringEntity("{body}");
-            StringEntity reqEntity = new StringEntity("{ \"url\": \"https://cdn.pixabay.com/photo/2014/10/25/00/28/selfie-501994_1280.jpg\" }");
+            StringEntity reqEntity = new StringEntity("{ \"url\": \"" + storageURL + "/" + "face.jpg" + "\" }");
             request.setEntity(reqEntity);
 
             System.out.println("After requesting the body");
@@ -154,6 +129,12 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
             System.out.println(e.getMessage());
         }
 
+        Gson gson = new Gson();
+
+        System.out.println(
+//                gson.fromJson(r,mayank.class)
+
+        );
         return r;
     }
 
