@@ -21,8 +21,6 @@ import java.text.MessageFormat;
 
 public class MainActivity extends AppCompatActivity {
 
-    public final static String EXTRA_MESSAGE = "com.hillnerds.soundsparow.MESSAGE";
-
     private String[] requested = new String[]{
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.BLUETOOTH,
@@ -41,16 +39,10 @@ public class MainActivity extends AppCompatActivity {
 
         TelephonyManager tManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         String uuid = tManager.getDeviceId();
-
-        Sound sound = new Sound();
-
     }
 
     public void openSound(View view) {
         Intent intent = new Intent(this, Sound.class);
-        //EditText editText = (EditText) findViewById(R.id.edit_message);
-        String message = "Hello";
-        intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
     }
 

@@ -17,7 +17,7 @@
         android:layout_width="150dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:onClick="stop_button"
+        android:onClick="pauseClick"
         android:background="@mipmap/stop"/>
 
 
