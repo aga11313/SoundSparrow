@@ -1,6 +1,5 @@
 package com.hillnerds.soundsparrow;
 
-import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.AdvertiseCallback;
@@ -10,28 +9,23 @@ import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
-import android.content.pm.PackageManager;
+import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelUuid;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
+import android.util.SparseArray;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class BluetoothTest extends AppCompatActivity {
+/**
+ * Created by cameron on 29/01/17.
+ */
 
+public class BluetoothHelper {
     private BluetoothAdapter mBluetoothAdapter;
     private Handler bleHandler;
     enum bleStates {
@@ -42,39 +36,27 @@ public class BluetoothTest extends AppCompatActivity {
     private AdvertiseData adData;
     private final int MANF_ID = 42;
     private Map<String, Byte> emotionToByte = new HashMap<String, Byte>();
+    private String[] byteToEmotion = new String[] {"happy", "sad", "neutral", "anger"};
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bluetooth_test);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+    private SparrowDiscoveredCallback discoveredCallback;
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+    public BluetoothHelper(Context ctx, SparrowDiscoveredCallback cback) {
+        emotionToByte.put("happy", (byte) 0);
+        emotionToByte.put("sad", (byte) 1);
+        emotionToByte.put("neutral", (byte) 2);
+        emotionToByte.put("anger", (byte) 3);
 
-        emotionToByte.put("happy", (byte) 1);
-        emotionToByte.put("sad", (byte) 2);
-        emotionToByte.put("neutral", (byte) 3);
-        emotionToByte.put("anger", (byte) 4);
+        discoveredCallback = cback;
 
         bleHandler = new Handler();
 
         mBluetoothAdapter = ((BluetoothManager)
-                getSystemService(this.BLUETOOTH_SERVICE)).getAdapter();
+                ctx.getSystemService(ctx.BLUETOOTH_SERVICE)).getAdapter();
 
         adData = buildAdvertisingData(UUID.randomUUID(), "happy");
-
-        bleStateMachine();
     }
 
-    private void bleStateMachine() {
+    public void bleStateMachine() {
         switch (currentBleState)
         {
             case SHOULD_SCAN:
@@ -108,15 +90,30 @@ public class BluetoothTest extends AppCompatActivity {
         return build.build();
     }
 
+    public interface SparrowDiscoveredCallback {
+        void onSparrowDiscovered(UUID uuid, String emotion, int rssi);
+    }
+
     private class DiscoverTask extends AsyncTask<Void, Void, Boolean>
     {
         private ScanCallback bleScanCallback =
                 new ScanCallback() {
                     @Override
                     public void onScanResult(int callbackType, ScanResult result) {
+                        SparseArray<byte[]> b = result.getScanRecord().getManufacturerSpecificData();
+                        int manf_id = b.keyAt(0);
+                        byte[] manf_data = b.get(manf_id);
+                        if (manf_id != MANF_ID ||
+                                !manf_data.toString().contains("emot")) {
+                            return;
+                        }
+                        UUID uuid = result.getScanRecord().getServiceUuids().get(0).getUuid();
+                        String emot = byteToEmotion[manf_data[5]];
+                        int rssi = result.getRssi();
+                        discoveredCallback.onSparrowDiscovered(uuid, emot, rssi);
                         Log.i("DiscoverTask",
                                 MessageFormat.format("New Device:\nrssi: {0}\naddr: {1}",
-                                        result.getRssi(),
+                                        rssi,
                                         result.getDevice().getAddress()));
                     }
                 };

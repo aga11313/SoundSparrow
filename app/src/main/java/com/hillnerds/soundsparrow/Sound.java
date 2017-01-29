@@ -4,7 +4,6 @@ import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 
 import org.billthefarmer.mididriver.MidiDriver;
@@ -13,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
+import java.util.UUID;
 
 
 public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartListener {
@@ -63,6 +63,14 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         MidiParser mp = new MidiParser(sorted_midi_array);
         playThread = new Thread(mp);
         playThread.start();
+
+        BluetoothHelper bHelp = new BluetoothHelper(this, new BluetoothHelper.SparrowDiscoveredCallback() {
+            @Override
+            public void onSparrowDiscovered(UUID uuid, String emotion, int rssi) {
+
+            }
+        });
+        bHelp.bleStateMachine();
     }
 
     @Override
