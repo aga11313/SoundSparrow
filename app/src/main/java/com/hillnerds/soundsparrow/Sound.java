@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.Random;
 
 
-public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartListener, View.OnClickListener, View.OnTouchListener {
+public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartListener {
     protected MidiDriver midi;
     protected MediaPlayer player;
 

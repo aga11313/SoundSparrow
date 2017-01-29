@@ -12,7 +12,11 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewManager;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.MessageFormat;
@@ -41,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         String uuid = tManager.getDeviceId();
     }
 
-    public void openSound(View view) {
+    public void openSound() {
         Intent intent = new Intent(this, Sound.class);
         startActivity(intent);
     }
@@ -83,12 +87,27 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == 1) {
             if(resultCode == Activity.RESULT_OK){
                 String result = data.getStringExtra("result");
+                TextView greeting = (TextView)findViewById(R.id.greeting);
+                greeting.setText("Welcome " + result + " :)");
             }
             if (resultCode == Activity.RESULT_CANCELED) {
                 //Write your code if there's no result
             }
         }
 
+        Button button = (Button)findViewById(R.id.get_started);
+
+        ((ViewManager)button.getParent()).removeView(button);
+
+
+
+        ImageButton play = (ImageButton)findViewById(R.id.click_me);
+        play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSound();
+            }
+        });
         
     }
 }

@@ -12,6 +12,9 @@
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -30,8 +33,9 @@
         <activity
             android:name=".BluetoothTest"
             android:label="@string/title_activity_bluetooth_test"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".Questions"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Questions" />
+        <activity android:name=".Visualisation"></activity>
     </application>
 
 </manifest>

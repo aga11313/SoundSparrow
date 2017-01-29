@@ -17,7 +17,6 @@
         android:layout_width="150dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:onClick="openSound"
         android:background="@mipmap/ic_launcher"
         android:clickable="false"/>
 
@@ -36,6 +35,17 @@
         android:onClick="askQuestions"
         android:background="@color/white"
         android:textSize="20dp"/>
+
+    <TextView
+        android:id="@+id/greeting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:textSize="30dp"
+        android:textColor="@color/colorAccent"
+        />
 
 
 
