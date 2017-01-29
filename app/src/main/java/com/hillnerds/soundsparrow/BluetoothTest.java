@@ -4,6 +4,10 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.AdvertiseCallback;
+import android.bluetooth.le.AdvertiseData;
+import android.bluetooth.le.AdvertiseSettings;
+import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
@@ -12,6 +16,7 @@ import android.media.audiofx.Visualizer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ParcelUuid;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -24,6 +29,7 @@ import android.widget.Toast;
 
 import java.security.Permission;
 import java.text.MessageFormat;
+import java.util.UUID;
 
 public class BluetoothTest extends AppCompatActivity {
     private String[] requested = new String[]{
@@ -34,6 +40,12 @@ public class BluetoothTest extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private Handler bleHandler;
+    enum bleStates {
+        SHOULD_SCAN,
+        SHOULD_ADVERTISE
+    }
+    private bleStates currentBleState = bleStates.SHOULD_SCAN;
+    private AdvertiseData adData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +70,28 @@ public class BluetoothTest extends AppCompatActivity {
 
         AskPermissions();
 
-        DiscoverTask d = new DiscoverTask();
-        d.execute();
+        adData = buildAdvertisingData();
+
+        bleStateMachine();
+    }
+
+    private void bleStateMachine() {
+        switch (currentBleState)
+        {
+            case SHOULD_SCAN:
+                currentBleState = bleStates.SHOULD_ADVERTISE;
+                DiscoverTask d = new DiscoverTask();
+                d.execute();
+                break;
+            case SHOULD_ADVERTISE:
+                currentBleState = bleStates.SHOULD_SCAN;
+                AdvertiseTask a = new AdvertiseTask();
+                a.execute();
+                break;
+            default:
+                // not actually expected to reach here
+                break;
+        }
     }
 
     protected void AskPermissions() {
@@ -86,7 +118,12 @@ public class BluetoothTest extends AppCompatActivity {
         }
     }
 
-
+    private AdvertiseData buildAdvertisingData() {
+        AdvertiseData.Builder build = new AdvertiseData.Builder();
+        ParcelUuid uuid = new ParcelUuid(UUID.randomUUID());
+        build.addServiceUuid(uuid);
+        return build.build();
+    }
 
     private class DiscoverTask extends AsyncTask<Void, Void, Boolean>
     {
@@ -107,9 +144,48 @@ public class BluetoothTest extends AppCompatActivity {
                 @Override
                 public void run() {
                     bleScan.stopScan(bleScanCallback);
+                    bleStateMachine();
                 }
             }, 1000);
             bleScan.startScan(bleScanCallback);
+            return true;
+        }
+    }
+
+    private class AdvertiseTask extends AsyncTask<Void, Void, Boolean>
+    {
+        protected Boolean doInBackground(Void... v) {
+            BluetoothLeAdvertiser bleAd = mBluetoothAdapter.getBluetoothLeAdvertiser();
+
+            AdvertiseSettings.Builder settBuild = new AdvertiseSettings.Builder();
+            settBuild.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY);
+            settBuild.setConnectable(false);
+            settBuild.setTimeout(500);
+            settBuild.setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM);
+
+            bleAd.startAdvertising(settBuild.build(), adData,
+                    new AdvertiseCallback() {
+                        @Override
+                        public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+                            Log.i("AdvertiseTask", "Advertising started successfully");
+                        }
+
+                        @Override
+                        public void onStartFailure(int errorCode) {
+                            Log.wtf("AdvertiseTask", MessageFormat.format(
+                                    "Advertising failed to start with code {0}",
+                                    errorCode
+                            ));
+                        }
+                    });
+
+            bleHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    bleStateMachine();
+                }
+            }, 500);
+
             return true;
         }
     }
