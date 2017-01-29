@@ -34,6 +34,7 @@ public class BluetoothHelper {
     }
     private bleStates currentBleState = bleStates.SHOULD_SCAN;
     private AdvertiseData adData;
+    private AdvertiseSettings adSett;
     private final int MANF_ID = 42;
     private Map<String, Byte> emotionToByte = new HashMap<String, Byte>();
     private String[] byteToEmotion = new String[] {"happy", "sad", "neutral", "anger"};
@@ -53,7 +54,8 @@ public class BluetoothHelper {
         mBluetoothAdapter = ((BluetoothManager)
                 ctx.getSystemService(ctx.BLUETOOTH_SERVICE)).getAdapter();
 
-        adData = buildAdvertisingData(UUID.randomUUID(), "happy");
+        adData = buildAdvertiseData(UUID.randomUUID(), "happy");
+        adSett = buildAdvertiseSettings();
     }
 
     public void bleStateMachine() {
@@ -75,7 +77,7 @@ public class BluetoothHelper {
         }
     }
 
-    private AdvertiseData buildAdvertisingData(UUID uuid, String emot) {
+    private AdvertiseData buildAdvertiseData(UUID uuid, String emot) {
         AdvertiseData.Builder build = new AdvertiseData.Builder();
 
         // we are using service UUID for user/device ID
@@ -84,10 +86,20 @@ public class BluetoothHelper {
 
         byte[] emotionBytes = new byte[1];
         emotionBytes[0] = emotionToByte.get(emot);
-        build.addManufacturerData(MANF_ID, "emot".getBytes());
         build.addManufacturerData(MANF_ID, emotionBytes);
+        build.setIncludeDeviceName(true);
 
         return build.build();
+    }
+    
+    private AdvertiseSettings buildAdvertiseSettings() {
+        AdvertiseSettings.Builder settBuild = new AdvertiseSettings.Builder();
+        settBuild.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY);
+        settBuild.setConnectable(false);
+        settBuild.setTimeout(500);
+        settBuild.setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM);
+        
+        return settBuild.build();
     }
 
     public interface SparrowDiscoveredCallback {
@@ -103,12 +115,11 @@ public class BluetoothHelper {
                         SparseArray<byte[]> b = result.getScanRecord().getManufacturerSpecificData();
                         int manf_id = b.keyAt(0);
                         byte[] manf_data = b.get(manf_id);
-                        if (manf_id != MANF_ID ||
-                                !manf_data.toString().contains("emot")) {
+                        if (manf_id != MANF_ID) {
                             return;
                         }
                         UUID uuid = result.getScanRecord().getServiceUuids().get(0).getUuid();
-                        String emot = byteToEmotion[manf_data[5]];
+                        String emot = byteToEmotion[manf_data[0]];
                         int rssi = result.getRssi();
                         discoveredCallback.onSparrowDiscovered(uuid, emot, rssi);
                         Log.i("DiscoverTask",
@@ -126,7 +137,7 @@ public class BluetoothHelper {
                     bleScan.stopScan(bleScanCallback);
                     bleStateMachine();
                 }
-            }, 1000);
+            }, 4000);
             bleScan.startScan(bleScanCallback);
             return true;
         }
@@ -137,13 +148,7 @@ public class BluetoothHelper {
         protected Boolean doInBackground(Void... v) {
             BluetoothLeAdvertiser bleAd = mBluetoothAdapter.getBluetoothLeAdvertiser();
 
-            AdvertiseSettings.Builder settBuild = new AdvertiseSettings.Builder();
-            settBuild.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY);
-            settBuild.setConnectable(false);
-            settBuild.setTimeout(500);
-            settBuild.setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM);
-
-            bleAd.startAdvertising(settBuild.build(), adData,
+            bleAd.startAdvertising(adSett, adData,
                     new AdvertiseCallback() {
                         @Override
                         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
@@ -152,7 +157,11 @@ public class BluetoothHelper {
 
                         @Override
                         public void onStartFailure(int errorCode) {
-                            Log.wtf("AdvertiseTask", MessageFormat.format(
+                            if (errorCode == 2) {
+                                mBluetoothAdapter.disable();
+                                mBluetoothAdapter.enable();
+                            }
+                            Log.w("AdvertiseTask", MessageFormat.format(
                                     "Advertising failed to start with code {0}",
                                     errorCode
                             ));
@@ -164,7 +173,7 @@ public class BluetoothHelper {
                 public void run() {
                     bleStateMachine();
                 }
-            }, 500);
+            }, 100);
 
             return true;
         }

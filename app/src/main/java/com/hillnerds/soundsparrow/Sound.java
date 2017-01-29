@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import org.billthefarmer.mididriver.MidiDriver;
 
@@ -67,7 +68,7 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         BluetoothHelper bHelp = new BluetoothHelper(this, new BluetoothHelper.SparrowDiscoveredCallback() {
             @Override
             public void onSparrowDiscovered(UUID uuid, String emotion, int rssi) {
-
+                Toast.makeText(getApplicationContext(), "We have sparrows in the garden", Toast.LENGTH_LONG);
             }
         });
         bHelp.bleStateMachine();
