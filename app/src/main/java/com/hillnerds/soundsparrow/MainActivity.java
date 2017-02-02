@@ -43,8 +43,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         askPermissions();
-
-
     }
 
     public void openSound() {
@@ -110,6 +108,5 @@ public class MainActivity extends AppCompatActivity {
                 openSound();
             }
         });
-        
     }
 }
