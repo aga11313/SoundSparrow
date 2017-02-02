@@ -33,7 +33,7 @@ Step2 : generate the scale in which all the notes will be chosen
 
 Step 3 
 
-com.hillnerds.soundsparrow.Midi code:
+com.hillnerds.soundsparrow.Note code:
 ----------
 
 Note on

@@ -22,8 +22,8 @@ public class SoundGeneration {
 
     /*public void initialize_random () {
 
-        int random_seed_num = (int) Integer.parseInt(random_seed);
-        Random random_generator = new Random(random_seed_num);
+        int random_seed_num = (int) Integer.parseInt(randomSeed);
+        Random randomGenerator = new Random(random_seed_num);
 
     }*/
 
@@ -63,7 +63,7 @@ public class SoundGeneration {
     public static int generate_velocity(Random random_generator){
 
         //pass signal strength as well
-        //int random_generated_velocity = random_generator.nextInt((100 - 80) + 1) + 80;
+        //int random_generated_velocity = randomGenerator.nextInt((100 - 80) + 1) + 80;
 
         int wifi = -80;
 

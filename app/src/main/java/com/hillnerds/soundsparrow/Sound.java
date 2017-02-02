@@ -5,13 +5,10 @@ import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.billthefarmer.mididriver.MidiDriver;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,14 +20,14 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
     protected MidiDriver midi;
     protected MediaPlayer player;
 
-    protected long user_id = MainActivity.uuid_long;
-    protected long random_seed = user_id;
+    protected long userId = MainActivity.uuid_long;
+    protected long randomSeed = userId;
 
-    public Random random_generator;
-    int channel_counter = 0;
+    public Random randomGenerator;
+    int channelCounter = 0;
 
 
-    public ArrayList<Channel> channel_list;
+    public ArrayList<Channel> channelList = new ArrayList<>();
 
     private Thread playThread;
     private boolean pausePressed = false;
@@ -40,58 +37,49 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sound);
 
-        channel_list = new ArrayList<>();
-        Channel channel1 = new Channel(user_id, "happy", 0, 1);
-        channel_list.add(channel1);
-
-        Channel channel2 = new Channel(55443322, "sad", 1, 1);
-        channel_list.add(channel2);
+        // TODO: dynamically get emotion
+        channelList.add(new Channel(userId, "happy", 0, 1));
 
         //generate random number
-        initialize_random_number_generator();
+        initializeRandomNumberGenerator();
 
         midi = new MidiDriver();
 
         if (midi != null) {
             midi.setOnMidiStartListener(this);
+        } else {
+            Log.w("Sound", "midi object was null");
         }
-
-        generateColor("happy");
-        channel_counter++;
-        generateColor("sad");
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        if (midi != null)
+        if (midi != null) {
             midi.start();
+        }
 
-        ArrayList<Midi> midi_array;
-        midi_array = generate_midi_file(channel_list);
+        ArrayList<Note> noteArray = generate_midi_file(channelList);
 
-        ArrayList<Midi> sorted_midi_array = sort_midi_array(midi_array);
+        ArrayList<Note> sortedNoteArray = sort_midi_array(noteArray);
 
-        MidiParser mp = new MidiParser(sorted_midi_array);
+        MidiParser mp = new MidiParser(sortedNoteArray);
         playThread = new Thread(mp);
         playThread.start();
 
         BluetoothHelper bHelp = new BluetoothHelper(this, new BluetoothHelper.SparrowDiscoveredCallback() {
             @Override
             public void onSparrowDiscovered(UUID uuid, String emotion, int rssi) {
-                Log.i("onSparrowDIscovered", "Yay");
+                Log.i("Sound", "A sparrow has been discovered");
 
                 long hi = uuid.getMostSignificantBits() & Long.MAX_VALUE;
 
-
-                Channel channel = new Channel(hi, "sad", channel_counter, 1);
-                channel_list.add(channel);
+                Channel channel = new Channel(hi, emotion, channelCounter, 1);
+                channelList.add(channel);
                 generateColor(emotion);
 
-                channel_counter++;
-
-                Toast.makeText(getApplicationContext(), "We have sparrows in the garden", Toast.LENGTH_LONG);
+                channelCounter++;
             }
         }, BluetoothHelper.getDeviceUUID(this));
         bHelp.bleStateMachine();
@@ -101,21 +89,13 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
     public void onPause() {
         super.onPause();
 
-        if (midi != null)
+        if (midi != null) {
             midi.stop();
+        }
 
         // Stop player
-
-        if (player != null)
+        if (player != null) {
             player.stop();
-    }
-
-    public void pauseClick(View v) {
-        pausePressed = true;
-        try {
-            playThread.join(100);
-        } catch (InterruptedException e) {
-            Log.w("Sound", "Couldn't stop playThread");
         }
     }
 
@@ -140,12 +120,12 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
 
     @Override
     public void onMidiStart() {
-
+        // TODO: Decide if this needs to do anything
     }
 
-    public void initialize_random_number_generator() {
-        long random_seed_num = random_seed;
-        random_generator = new Random(random_seed_num);
+    public void initializeRandomNumberGenerator() {
+        long random_seed_num = randomSeed;
+        randomGenerator = new Random(random_seed_num);
     }
 
     public void safeSleep(int time) {
@@ -156,118 +136,114 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         }
     }
 
-    public ArrayList<Midi> generate_midi_channel(Channel c) {
-        ArrayList<Midi> midi_array = new ArrayList<>();
+    public ArrayList<Note> generateMidiChannel(Channel c) {
+        ArrayList<Note> noteArray = new ArrayList<>();
 
-        int timestamp_counter = 0;
+        int timestampCounter = 0;
 
-        c.generateInstrument(random_generator);
+        c.generateInstrument(randomGenerator);
 
-        Midi instrument_change = new Midi(192 + c.number, c.instrument, timestamp_counter);
-        midi_array.add(instrument_change);
+        Note instrument_change = new Note(192 + c.number, c.instrument, timestampCounter);
+        noteArray.add(instrument_change);
 
         for (int i = 0; i < 16; i = i+2) {
-            int starting_code = SoundGeneration.generate_starting_code(c.number);
-            int pitch = SoundGeneration.generate_pitch(random_generator, c.range_min, c.range_max);
-            int velocity = SoundGeneration.generate_velocity(random_generator);
+            int startingCode = SoundGeneration.generate_starting_code(c.number);
+            int pitch = SoundGeneration.generate_pitch(randomGenerator, c.range_min, c.range_max);
+            int velocity = SoundGeneration.generate_velocity(randomGenerator);
 
-            int duration = SoundGeneration.generate_note_duration(random_generator);
+            int duration = SoundGeneration.generate_note_duration(randomGenerator);
 
-            Midi note_on = new Midi(starting_code, pitch, velocity, timestamp_counter);
-            timestamp_counter = timestamp_counter + duration;
+            Note note_on = new Note(startingCode, pitch, velocity, timestampCounter);
+            timestampCounter = timestampCounter + duration;
 
-            Midi note_off = new Midi(starting_code, pitch, 0, timestamp_counter);
+            Note note_off = new Note(startingCode, pitch, 0, timestampCounter);
 
-            midi_array.add(note_on);
-            midi_array.add(note_off);
+            noteArray.add(note_on);
+            noteArray.add(note_off);
         }
-        return midi_array;
+        return noteArray;
     }
 
-    public ArrayList <Midi> generate_midi_file(ArrayList<Channel> channel_list){
-        ArrayList<ArrayList<Midi>> midi_to_merge = new ArrayList<ArrayList<Midi>>();
+    public ArrayList <Note> generate_midi_file(ArrayList<Channel> channelList){
+        ArrayList<ArrayList<Note>> midiToMerge = new ArrayList<>();
 
-        for (Channel c : channel_list) {
-            midi_to_merge.add(generate_midi_channel(c));
+        for (Channel c : channelList) {
+            midiToMerge.add(generateMidiChannel(c));
         }
 
-        ArrayList<Midi> combined = new ArrayList<Midi>();
+        ArrayList<Note> combined = new ArrayList<>();
 
-        for (ArrayList<Midi> a_m : midi_to_merge){
+        for (ArrayList<Note> a_m : midiToMerge){
             combined.addAll(a_m);
         }
 
         return combined;
     }
 
-    public ArrayList<Midi> sort_midi_array (ArrayList<Midi> midi_array){
-        Collections.sort(midi_array,new Comparator<Midi>() {
+    public ArrayList<Note> sort_midi_array (ArrayList<Note> noteArray){
+        Collections.sort(noteArray,new Comparator<Note>() {
             @Override
-            public int compare(Midi m1, Midi m2) {
+            public int compare(Note m1, Note m2) {
                 return Integer.valueOf(m1.timestamp).compareTo(m2.timestamp);
             }
         });
 
-        return midi_array;
+        return noteArray;
     }
 
     public class MidiParser implements Runnable {
-        private ArrayList<Midi> midiFile;
+        private ArrayList<Note> midiFile;
 
-        public MidiParser(ArrayList<Midi> midiFile) {
+        public MidiParser(ArrayList<Note> midiFile) {
             this.midiFile = midiFile;
         }
 
         public void run() {
             while (!pausePressed)
             {
-                int current_timestamp = 0;
+                int currentTimestamp = 0;
 
-                for (Midi m : midiFile) {
+                for (Note m : midiFile) {
                     if (pausePressed) {
                         break;
                     }
                     if (m.isStartingBit) {
                         sendMidi(m.starting_code, m.instrument);
                     } else {
-                        safeSleep(m.timestamp - current_timestamp);
+                        safeSleep(m.timestamp - currentTimestamp);
                         sendMidi(m.starting_code, m.pitch, m.velocity);
                     }
-                    current_timestamp = m.timestamp;
+                    currentTimestamp = m.timestamp;
                 }
             }
         }
     }
 
     public void generateColor(String emotion){
-
+        // TODO: Find a better view than TextView for a block of colour
         TextView text1 = (TextView)findViewById(R.id.text1);
         TextView text2 = (TextView)findViewById(R.id.text2);
         TextView text3 = (TextView)findViewById(R.id.text3);
         TextView text4 = (TextView)findViewById(R.id.text4);
 
-        ArrayList<TextView> text_array = new ArrayList<>();
-        text_array.add(text1);
-        text_array.add(text2);
-        text_array.add(text3);
-        text_array.add(text4);
+        ArrayList<TextView> textArray = new ArrayList<>();
+        textArray.add(text1);
+        textArray.add(text2);
+        textArray.add(text3);
+        textArray.add(text4);
 
-        int[] warm_color_array = new int[] {Color.RED, Color.YELLOW, Color.MAGENTA};
-        int[] cold_color_array = new int[] {Color.BLUE, Color.CYAN, Color.GRAY, Color.GREEN};
+        int[] warmColorArray = new int[] {Color.RED, Color.YELLOW, Color.MAGENTA};
+        int[] coldColorArray = new int[] {Color.BLUE, Color.CYAN, Color.GRAY, Color.GREEN};
 
         if (emotion == "happy"){
-
-            text_array.get(channel_counter).setBackgroundColor(warm_color_array[random_generator.nextInt((2-0) +1) +0]);
-
+            textArray.get(channelCounter).setBackgroundColor(
+                    warmColorArray[randomGenerator.nextInt((2-0) +1) +0]);
         } else if (emotion == "sad"){
-
-            text_array.get(channel_counter).setBackgroundColor(cold_color_array[random_generator.nextInt((2-0) +1) +0]);
-
+            textArray.get(channelCounter).setBackgroundColor(
+                    coldColorArray[randomGenerator.nextInt((2-0) +1) +0]);
         } else {
-
+            Log.w("Sound", "generateColor received a bad emotion");
         }
-
     }
-
 }
 
