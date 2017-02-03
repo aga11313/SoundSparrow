@@ -11,25 +11,61 @@
     android:background="@color/white"
     tools:context="com.hillnerds.soundsparrow.Questions">
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:id="@+id/edit_text"
-        />
-
-    <TextView
-        android:id="@+id/text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/edit_text"
-        android:text="Hi :) whats your name?"
-        android:textSize="20dp"/>
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Confirm"
-        android:onClick="send_results"/>
+        android:onClick="validateAndFinish"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/button" />
+
+    <TextView
+        android:id="@+id/name_prompt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/name_prompt"
+        android:textSize="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/name_edit_text"
+        android:layout_below="@+id/name_prompt"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/linkedin_prompt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/linkedin_prompt"
+        android:textSize="20dp"
+        android:layout_below="@+id/name_edit_text"
+        android:layout_marginTop="30dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linkedin_edit_text"
+        android:layout_below="@+id/linkedin_prompt"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/github_prompt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/github_prompt"
+        android:textSize="20dp"
+        android:layout_below="@+id/linkedin_edit_text"
+        android:layout_marginTop="30dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/github_edit_text"
+        android:layout_below="@+id/github_prompt"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

@@ -7,4 +7,8 @@
     <string name="description_info">Info</string>
     <string name="request_permission">This app needs camera permission.</string>
     <string name="intro_message">You are a pigface of epic proportion and your thigh bone is weak.</string>
+    <string name="name_prompt">Hi :) whats your name?</string>
+    <string name="linkedin_prompt">LinkedIn shareable link</string>
+    <string name="github_prompt">GitHub ID</string>
+    <string name="no_name_toast">Please enter at least your name</string>
 </resources>

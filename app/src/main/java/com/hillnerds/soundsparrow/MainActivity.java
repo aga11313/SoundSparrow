@@ -1,25 +1,21 @@
 package com.hillnerds.soundsparrow;
 
 import android.app.Activity;
-import android.content.Context;
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewManager;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.UUID;
 
@@ -37,23 +33,45 @@ public class MainActivity extends AppCompatActivity {
     public String uuid_str;
     public static long uuid_long;
 
+    private final String PREF_NAME = "SparrowPreferences";
+    private SharedPreferences appPref;
+    private TextView greetings;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        appPref = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        greetings = (TextView) findViewById(R.id.greeting);
+
         askPermissions();
+
+        if(appPref.getString("user_name", "") == "") {
+            askQuestions();
+        }
     }
 
-    public void openSound() {
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        greetings.setText("Hi, " + appPref.getString("user_name", ""));
+    }
+
+    public void openSound(View view) {
         Intent intent = new Intent(this, Sound.class);
         startActivity(intent);
     }
 
-    public void askQuestions(View view){
-        Intent intent = new Intent(this, Questions.class);
-        startActivityForResult(intent, 1);
+    public void editDataClick(View view) {
+        askQuestions();
+    }
 
+    public void askQuestions() {
+        Intent intent = new Intent(this, Questions.class);
+
+        startActivity(intent);
     }
 
     private void askPermissions() {
@@ -79,34 +97,5 @@ public class MainActivity extends AppCompatActivity {
                     MessageFormat.format("Permission {0} not granted", requested[requestCode]),
                     Toast.LENGTH_LONG);
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == 1) {
-            if(resultCode == Activity.RESULT_OK){
-                String result = data.getStringExtra("result");
-                TextView greeting = (TextView)findViewById(R.id.greeting);
-                greeting.setText("Welcome " + result + " :)");
-            }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
-            }
-        }
-
-        Button button = (Button)findViewById(R.id.get_started);
-
-        ((ViewManager)button.getParent()).removeView(button);
-
-
-
-        ImageButton play = (ImageButton)findViewById(R.id.click_me);
-        play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openSound();
-            }
-        });
     }
 }
