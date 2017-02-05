@@ -29,8 +29,11 @@ import java.util.UUID;
  */
 
 public class BluetoothHelper {
-    // TODO: look at whether this needs to be changed
-    private final int MANF_ID = 42;
+    /* https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers
+     * 5/2/2017 IDs up to 1156 were assigned therefore we select one in the range
+     * 1157-65534 (65535 is reserved)
+     */
+    private final int MANF_ID = 0xBEEF;
 
     private final int SCAN_PERIOD_MS    = 600;
     private final int AD_PERIOD_MS      = 50;
