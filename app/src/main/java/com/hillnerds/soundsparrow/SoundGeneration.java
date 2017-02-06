@@ -1,7 +1,15 @@
 package com.hillnerds.soundsparrow;
 
+import android.graphics.Color;
+import android.os.Message;
 import android.util.Log;
+import android.widget.TextView;
 
+import java.lang.reflect.Array;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Random;
 
 /**
@@ -10,135 +18,84 @@ import java.util.Random;
 
 public class SoundGeneration {
 
-
-
-
     int[][] midi_file;
-    public static String[] instrument_list = new String[] {"piano", "guitar", "trombone", "trumpet", "violin", "saxophone", "flute"};
-    public static int[] instrument_list_midi_codes = new int[] {1,26,58,57,41,66,74};
-    public static int[][] instrument_range_list = new int[][] {{40, 60},{45, 70},{55, 70},{64, 80},{50,65},{45, 60},{73, 90}};
 
     int number_of_channels = 4;
 
-    /*public void initialize_random () {
+    /**
+     * Method that is called from the Sound class onResume method. Responsible for generating a
+     * full MIDI Array of MidiSequences ready for synthesizing.
+     * @param activeChannelList - the List of currently active (in range) channels
+     * @return - the sorrted and ready for sythesis array of MidiSequence objects.
+     */
+    public static ArrayList<MidiSequence> createFileToSynthesize (ArrayList<Channel> activeChannelList){
 
-        int random_seed_num = (int) Integer.parseInt(randomSeed);
-        Random randomGenerator = new Random(random_seed_num);
+        ArrayList<MidiSequence> midiSequenceArray = generateMidiFile(activeChannelList);
+        ArrayList<MidiSequence> sortedMidiSequenceArray = sortMidiSequenceArray(midiSequenceArray);
 
-    }*/
-
-    public static int generate_starting_code(int number){
-
-        return 144 + number;
-
+        return sortedMidiSequenceArray;
     }
 
-    public static int generate_pitch(Random random_generator, int range_min, int range_max){
+    /**
+     * Generates MidiSequence Arrays for all channels in the Channel sound generation class.
+     * Stores all of them in one ArrayList
+     * @param activeChannelList - list of sparrows currently in range
+     * @return - an ArrayList of MidiSeqence ArrayLists for all available channel
+     */
+    public static ArrayList <MidiSequence> generateMidiFile(ArrayList<Channel> activeChannelList){
+        ArrayList<ArrayList<MidiSequence>> midiToMerge = new ArrayList<>();
 
-        int random_generated_pitch = random_generator.nextInt((range_max - range_min) + 1) + range_min;
-
-        int[] array_of_possible_notes = completed_scale(random_generator, random_generated_pitch);
-
-        int random_starting_point = random_generator.nextInt((4 - 0) +1 ) + 0;
-
-        int[] random_short_array = new int[4];
-        random_short_array[0] = array_of_possible_notes[random_starting_point];
-        random_short_array[1] = array_of_possible_notes[random_starting_point+1];
-        random_short_array[2] = array_of_possible_notes[random_starting_point+2];
-        random_short_array[3] = array_of_possible_notes[random_starting_point+3];
-
-
-        for (int i : array_of_possible_notes){
-
-            //Log.i("generate pitch", String.format("Note: %1$d" , i));
-
+        for (Channel c : activeChannelList) {
+            midiToMerge.add(ChannelSoundGeneration.generateMidiChannel(c));
         }
 
-        int random_note = random_short_array[random_generator.nextInt((3-0) + 1) + 0];
+        ArrayList<MidiSequence> combined = new ArrayList<>();
 
-        return random_note;
+        for (ArrayList<MidiSequence> ms : midiToMerge){
+            combined.addAll(ms);
+        }
 
+        return combined;
     }
 
-    public static int generate_velocity(Random random_generator){
 
-        //pass signal strength as well
-        //int random_generated_velocity = randomGenerator.nextInt((100 - 80) + 1) + 80;
+    public static ArrayList<MidiSequence> sortMidiSequenceArray(ArrayList<MidiSequence> midiSequenceArray){
+        Collections.sort(midiSequenceArray,new Comparator<MidiSequence>() {
 
-        int wifi = -80;
+            @Override
+            public int compare(MidiSequence m1, MidiSequence m2) {
+                return Integer.valueOf(m1.timestamp).compareTo(m2.timestamp);
+            }
+        });
 
-        int random_generated_velocity = Math.abs(wifi);
-
-        return random_generated_velocity;
-
+        return midiSequenceArray;
     }
 
-    public static int generate_note_duration(Random random_generator){
+    // TODO: implement the visualisation element again
+    /*public void generateColor(String emotion){
+        // TODO: Find a better view than TextView for a block of colour
+        TextView text1 = (TextView)findViewById(R.id.text1);
+        TextView text2 = (TextView)findViewById(R.id.text2);
+        TextView text3 = (TextView)findViewById(R.id.text3);
+        TextView text4 = (TextView)findViewById(R.id.text4);
 
-        int[] duration = new int[] {200, 400, 400};
+        ArrayList<TextView> textArray = new ArrayList<>();
+        textArray.add(text1);
+        textArray.add(text2);
+        textArray.add(text3);
+        textArray.add(text4);
 
-        int random_duration = duration[random_generator.nextInt((2-0) + 1) + 0];
-
-        //random_duration = 200;
-
-        return random_duration;
-
-    }
-
-    public static int[] completed_scale(Random random_generator, int starting_note){
-
-        int[] steps = chooseTypeOfScale("happy");
-        int[] scale = generateScale(starting_note, steps);
-
-        return scale;
-
-    }
-
-    public void chooseEmotion () {
-
-        return;
-    }
-
-    public int chooseStartingNote(){
-
-
-        return 0;
-    }
-
-    public static int[] chooseTypeOfScale(String emotion) {
-
-        //return 1 for major 2 for minor and 3 for b major???
-        int[] step_major = new int[] {2,2,1,2,2,2,1};
-        int[] step_minor = new int[] {2,1,2,2,1,2,2};
-
-        int[] step_array = new int[78];
+        int[] warmColorArray = new int[] {Color.RED, Color.YELLOW, Color.MAGENTA};
+        int[] coldColorArray = new int[] {Color.BLUE, Color.CYAN, Color.GRAY, Color.GREEN};
 
         if (emotion == "happy"){
-            step_array = step_major;
-        } else if (emotion == "sad") {
-            step_array = step_minor;
+            textArray.get(channelCounter).setBackgroundColor(
+                    warmColorArray[randomGenerator.nextInt((2-0) +1) +0]);
+        } else if (emotion == "sad"){
+            textArray.get(channelCounter).setBackgroundColor(
+                    coldColorArray[randomGenerator.nextInt((2-0) +1) +0]);
         } else {
-            step_array = step_major;
+            Log.w("Sound", "generateColor received a bad emotion");
         }
-
-        return step_array;
-    }
-
-    public static int[] generateScale (int starting_note, int[] steps){
-
-        int[] scale_generated = new int[8];
-
-        int steps_counter = 0;
-
-        for (int i = 0; i < 7; i++){
-            steps_counter = steps_counter + steps[i];
-
-            scale_generated[i] = starting_note + steps_counter;
-            Log.i("parse_midi_file", String.format("Scale generated: %1$d" , scale_generated[i]));
-
-        }
-
-        return scale_generated;
-    }
-
+    }*/
 }
