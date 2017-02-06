@@ -8,39 +8,30 @@ import java.util.Random;
 
 public class Channel {
 
-    long id;
+    long uuid;
     String emotion;
     int number;
-    int instrument;
-    int range_min;
-    int range_max;
+    Instrument instrument;
+    Random randomGenerator;
+    //String scaleName; //major or minor
+    int[] steps; //dependant on the choice of minor or major
+    int startingNote;
+    int[] scaleValues;
 
-    public Channel (long id, String emotion, int number, int instrument){
+    public Channel (long uuid, String emotion, int number){
 
-        this.id = id;
+        this.uuid = uuid;
         this.emotion = emotion;
         this.number = number;
         this.instrument = instrument;
 
-    }
+        this.randomGenerator = new Random(uuid);
 
-    public Channel (){
-
-
-    }
-
-    public void generateInstrument(Random random){
-
-        int instrument = random.nextInt((6 - 0) + 1) + 0;
-        //int instrument  = 6;
-
-        this.instrument = SoundGeneration.instrument_list_midi_codes[instrument];
-
-        int[] range_array = SoundGeneration.instrument_range_list[instrument];
-
-        range_min = range_array[0];
-        range_max = range_array[1];
+        this.instrument = ChannelSoundGeneration.generateRandomInstrument(this.randomGenerator);
+        this.steps = ChannelSoundGeneration.chooseScaleStep(this.emotion);
+        this.startingNote = ChannelSoundGeneration.chooseStartingNote(this.instrument, this.randomGenerator);
 
     }
+
 
 }
