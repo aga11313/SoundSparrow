@@ -58,7 +58,11 @@ public class SoundGeneration {
         return combined;
     }
 
-
+    /**
+     * Sorts an Arraylist of MidiSequence Objects by their timestamp
+     * @param midiSequenceArray - the array to be sorted
+     * @return a sorted array
+     */
     public static ArrayList<MidiSequence> sortMidiSequenceArray(ArrayList<MidiSequence> midiSequenceArray){
         Collections.sort(midiSequenceArray,new Comparator<MidiSequence>() {
 

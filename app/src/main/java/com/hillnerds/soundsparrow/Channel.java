@@ -30,6 +30,7 @@ public class Channel {
         this.instrument = ChannelSoundGeneration.generateRandomInstrument(this.randomGenerator);
         this.steps = ChannelSoundGeneration.chooseScaleStep(this.emotion);
         this.startingNote = ChannelSoundGeneration.chooseStartingNote(this.instrument, this.randomGenerator);
+        this.scaleValues = ChannelSoundGeneration.generateScale(this.startingNote, this.steps);
 
     }
 

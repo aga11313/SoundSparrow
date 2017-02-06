@@ -55,7 +55,7 @@ public class ChannelSoundGeneration {
          */
         for (int i = 0; i < 16; i = i+2) {
             int startingCode = generateStartingCode(c.number);
-            int pitch = generatePitch(c.randomGenerator, c.instrument.rangeMin, c.instrument.rangeMax);
+            int pitch = generatePitch(c);
             int velocity = generateVelocity(c.randomGenerator);
 
             int duration = generateNoteDuration(c.randomGenerator);
@@ -84,30 +84,14 @@ public class ChannelSoundGeneration {
     }
 
     /**
-     * Generate a pitch for a single note with constraints on type of scale, starting note
-     * @param randomGenerator
-     * @param rangeMin
-     * @param rangeMax
-     * @return
+     * Generate a random pitch value for a channel based off of the scale assigned to it
+     * @param c - the channel for which a note is generated
+     * @return - a value between 0 and 127
      */
-    public static int generatePitch(Random randomGenerator, int rangeMin, int rangeMax){
-        //Log.i("generatePitch", MessageFormat.format("Range min: {1}, Range max: {2}" , rangeMin, rangeMax));
-        int randomGeneratedPitch = randomGenerator.nextInt((rangeMax - rangeMin) + 1) + rangeMin;
-        int[] arrayOfPossibleNotes = completedScale(randomGenerator, randomGeneratedPitch);
-        int randomStartingPoint = randomGenerator.nextInt((4 - 0) + 1 ) + 0;
+    public static int generatePitch(Channel c){
+        int randomGeneratedPitch = c.scaleValues[c.randomGenerator.nextInt((7 - 0) + 1)];
 
-        int[] randomShortArray = new int[4];
-        randomShortArray[0] = arrayOfPossibleNotes[randomStartingPoint];
-        randomShortArray[1] = arrayOfPossibleNotes[randomStartingPoint+1];
-        randomShortArray[2] = arrayOfPossibleNotes[randomStartingPoint+2];
-        randomShortArray[3] = arrayOfPossibleNotes[randomStartingPoint+3];
-
-        for (int i : arrayOfPossibleNotes){
-            Log.i("generate pitch", String.format("Note: %1$d" , i));
-        }
-
-        int randomNote = randomShortArray[randomGenerator.nextInt((3-0) + 1) + 0];
-        return randomNote;
+        return randomGeneratedPitch;
     }
 
     /**
@@ -136,13 +120,13 @@ public class ChannelSoundGeneration {
         return random_duration;
     }
 
-    public static int[] completedScale(Random randomGenerator, int startingNote){
-        int[] steps = chooseScaleStep("happy");
-        int[] scale = generateScale(startingNote, steps);
-
-        return scale;
-    }
-
+    /**
+     * Called from within a channel constructor.
+     * Choose a note that will be a starting point for scale generation.
+     * @param instrument - the instrument which will rpovide the range of pitch requirements.
+     * @param randomGenerator - a random generator object
+     * @return - a value within a range of the chosen instrument (between 0 and 127)
+     */
     public static  int chooseStartingNote (Instrument instrument, Random randomGenerator){
         int startingNote = randomGenerator.nextInt((instrument.rangeMax -
                 instrument.rangeMin) + 1) + instrument.rangeMin;
@@ -150,6 +134,13 @@ public class ChannelSoundGeneration {
         return startingNote;
     }
 
+    /**
+     * Called from within a channel constructor.
+     * Based on the emotion assigned to this channel chooses a major or minor scale and
+     * its respective step array.
+     * @param emotion - an emotion name
+     * @return - an array of steps for an appropriate scale
+     */
     public static int[] chooseScaleStep(String emotion) {
         //return 1 for major 2 for minor
         int[] step_major = new int[] {2,2,1,2,2,2,1};
@@ -165,6 +156,13 @@ public class ChannelSoundGeneration {
         return step_array;
     }
 
+    /**
+     * Called from within a channel constructor.
+     *
+     * @param startingNote - the forst note of the scale
+     * @param steps - an array representing a major or minor scale
+     * @return - an array of values (0 to 127) representing the alowed pitch values
+     */
     public static int[] generateScale (int startingNote, int[] steps){
         int[] completedScale = new int[7];
 
