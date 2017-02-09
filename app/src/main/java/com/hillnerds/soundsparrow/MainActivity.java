@@ -40,12 +40,7 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.INTERNET
     };
 
-    public static UUID uuid;
-    public String uuid_str;
-    public static long uuid_long;
-
     private String imageStoreLocation;
-
     private final String PREF_NAME = "SparrowPreferences";
     private SharedPreferences appPref;
     private TextView greetings;
