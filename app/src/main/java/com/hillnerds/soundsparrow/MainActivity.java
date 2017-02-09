@@ -14,12 +14,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private String[] requested = new String[]{
+    private String[] permissions = new String[]{
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_ADMIN,
@@ -29,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private final String PREF_NAME = "SparrowPreferences";
     private SharedPreferences appPref;
     private TextView greetings;
+
+    final static int PERMISSIONS_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,27 +72,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void askPermissions() {
-        int idx = 0;
-        for (String permission : requested) {
-            int permissionCheck = ContextCompat.checkSelfPermission(this,
-                    permission);
+        int permissionCheck;
+        ArrayList<String> listPermissionsNeeded = new ArrayList<>();
+        for (String p : permissions) {
+            permissionCheck = ContextCompat.checkSelfPermission(this, p);
             if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                Log.i("Permissions", MessageFormat.format("Requesting permission {0}", permission));
-                ActivityCompat.requestPermissions(this,
-                        new String[] {permission},
-                        idx);
+                listPermissionsNeeded.add(p);
             }
-            idx++;
+        }
+        if (!listPermissionsNeeded.isEmpty()){
+            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(
+                    new String[listPermissionsNeeded.size()]), PERMISSIONS_REQUEST_CODE);
+
         }
     }
 
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
-        if (grantResults.length == 0
-                || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this,
-                    MessageFormat.format("Permission {0} not granted", requested[requestCode]),
-                    Toast.LENGTH_LONG);
+        if (grantResults.length > 0){
+            switch (requestCode) {
+                case PERMISSIONS_REQUEST_CODE:
+                    for (int i = 0; i < grantResults.length; i++) {
+                        switch (grantResults[i]) {
+                            case (PackageManager.PERMISSION_GRANTED):
+                                Log.i("onRequestPermission", "Permission Granted");
+                            case (PackageManager.PERMISSION_DENIED):
+                                Log.i("onRequestPermission", "Permission Denied");
+                                Toast.makeText(this,
+                                        MessageFormat.format("Permission {0} not granted",
+                                                permissions[i]), Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+            }
+            return;
         }
     }
 }
