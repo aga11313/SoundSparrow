@@ -1,12 +1,15 @@
 package com.hillnerds.soundsparrow;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -33,6 +36,22 @@ public class Questions extends AppCompatActivity {
         nameEdit.setText(appPref.getString("user_name", ""));
         linkedinEdit.setText(appPref.getString("linkedin_id", ""));
         githubEdit.setText(appPref.getString("github_id", ""));
+
+       View.OnKeyListener closeOnEnter = new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(nameEdit.getWindowToken(), 0);
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        nameEdit.setOnKeyListener(closeOnEnter);
+        linkedinEdit.setOnKeyListener(closeOnEnter);
+        githubEdit.setOnKeyListener(closeOnEnter);
     }
 
     public void validateAndFinish(View view){
