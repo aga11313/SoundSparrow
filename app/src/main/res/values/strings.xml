@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">SoundSparrow</string>
-    <color name="white">#006666</color>
+    <color name="background">#006666</color>
+    <color name="whitish">#EEEEEE</color>
     <color name="black">#000000</color>
     <string name="title_activity_bluetooth_test">BluetoothTest</string>
     <string name="picture">Picture</string>
@@ -11,4 +12,6 @@
     <string name="linkedin_prompt">LinkedIn shareable link</string>
     <string name="github_prompt">GitHub ID</string>
     <string name="no_name_toast">Please enter at least your name</string>
+    <string name="new_emotion">New emotion</string>
+    <string name="edit_user_data">Edit user data</string>
 </resources>

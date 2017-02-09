@@ -4,8 +4,10 @@ package com.hillnerds.soundsparrow;
  * Created by mayan on 28/01/2017.
  */
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -26,6 +28,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.text.MessageFormat;
+import java.util.UUID;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -47,11 +51,20 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
     private static final String storageContainer = "sparrow";
     private static final String storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=soundsparrow;AccountKey=jZzZsr8d9TCaX/8lrIWkoZ5My9AY08nX5XHrr96rnWsG0yXl6vmp7iwFpzMK+EFPM75BNLNajEPyMnEgQDXsbg==";
     private static final String emotionPrimaryKey = "d0372ad59f6141889b33032fb742e04f";
-    private static final String imageName = "face.jpg";
+    private Context ctx;
 
+    public EmotionService(Context c) {
+        this.ctx = c;
+    }
+
+    /**
+     * The function called on .execute(), stores the image provided in Azure storage and sends it
+     * to the Microsoft Cognitive Services API
+     * @param params A String that contains the full path to the image file that you want analysed.
+     * @return       A String representing the current emotion of the user in the photo.
+     */
     @Override
     protected String doInBackground(String... params) {
-
         //Store image in blob storage
         storeImageInBlobStorage(params[0]);
 
@@ -63,9 +76,7 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
 
     @Override
     protected void onPostExecute(String result) {
-
-        //COMMENTED OUT FOR TESTING
-        //double happiness = Double.parseDouble(result);
+        Log.d("EmotionService", result);
     }
 
     protected void storeImageInBlobStorage(String imgPath){
@@ -80,9 +91,10 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
             // Retrieve reference to a previously created container.
             CloudBlobContainer container = blobClient.getContainerReference(storageContainer);
 
+            UUID devUUID = BluetoothHelper.getDeviceUUID(ctx);
             // Create or overwrite the "face.jpeg" blob with contents from a local file.
-            CloudBlockBlob blob = container.getBlockBlobReference(imageName);
-            File source = new File(imgPath + '/' + imageName);
+            CloudBlockBlob blob = container.getBlockBlobReference(devUUID.toString());
+            File source = new File(imgPath);
             blob.upload(new FileInputStream(source), source.length());
         }
         catch (Exception e)
@@ -93,14 +105,12 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
     }
 
     protected String getEmotionScore(){
-
         HttpClient httpclient = HttpClients.createDefault();
         System.out.println("Starting now");
         String r = "";
-        try
-        {
-            URIBuilder builder = new URIBuilder("https://westus.api.cognitive.microsoft.com/emotion/v1.0/recognize");
-
+        try {
+            URIBuilder builder = new URIBuilder(
+                    "https://westus.api.cognitive.microsoft.com/emotion/v1.0/recognize");
 
             URI uri = builder.build();
             HttpPost request = new HttpPost(uri);
@@ -109,32 +119,23 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
 
             System.out.println("Before requesting the body");
             // Request body
-            //StringEntity reqEntity = new StringEntity("{body}");
-            StringEntity reqEntity = new StringEntity("{ \"url\": \"" + storageURL + "/" + "face.jpg" + "\" }");
+            StringEntity reqEntity = new StringEntity(
+                    "{ \"url\": \"" + storageURL + "/" + "face.jpg" + "\" }");
             request.setEntity(reqEntity);
 
-            System.out.println("After requesting the body");
             HttpResponse response = httpclient.execute(request);
             HttpEntity entity = response.getEntity();
 
-            System.out.println("Before checking for entity and printing");
-            if (entity != null)
-            {
+            if (entity != null) {
                 r = EntityUtils.toString(entity);
-                System.out.println(r);
+                Log.d("EmotionService", MessageFormat.format("Response received\n{0}",
+                        r));
             }
+        } catch (Exception e) {
+            Log.w("EmotionService", MessageFormat.format("Exception encountered\n{0}",
+                    e.getMessage()));
         }
-        catch (Exception e)
-        {
-            System.out.println(e.getMessage());
-        }
 
-        Gson gson = new Gson();
-
-        System.out.println(
-//                gson.fromJson(r,mayank.class)
-
-        );
         return r;
     }
 

@@ -8,23 +8,24 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@color/white"
+    android:background="@color/background"
     tools:context="com.hillnerds.soundsparrow.MainActivity">
 
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@mipmap/bird"/>
+
     <ImageButton
-        android:id="@+id/click_me"
+        android:id="@+id/play_button"
         android:layout_height="150dp"
         android:layout_width="150dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:background="@mipmap/ic_launcher"
         android:clickable="true"
-        android:onClick="openSound"/>
-
-    <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:background="@mipmap/bird"/>
+        android:onClick="openSound"
+        android:visibility="gone"/>
 
     <Button
         android:id="@+id/edit_data"
@@ -32,10 +33,18 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:text="Edit user data"
+        android:text="@string/edit_user_data"
         android:onClick="editDataClick"
-        android:background="@color/white"
-        android:textSize="20dp"/>
+        android:textSize="20sp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/edit_data"
+        android:layout_centerHorizontal="true"
+        android:textSize="20sp"
+        android:text="@string/new_emotion"
+        android:onClick="newEmotionClick" />
 
     <TextView
         android:id="@+id/greeting"
@@ -43,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_above="@id/edit_data"
-        android:background="@color/white"
+        android:background="@color/background"
         android:textSize="30dp"
         android:textColor="@color/colorAccent"
         />
