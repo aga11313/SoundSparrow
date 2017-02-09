@@ -16,6 +16,10 @@ import java.util.Random;
  * Created by aga on 28/01/17.
  */
 
+/**
+ * A class handling the merging and sorting of MIDI Sequences generated for all channels by the
+ * Channel Generation class.
+ */
 public class SoundGeneration {
 
     int[][] midi_file;

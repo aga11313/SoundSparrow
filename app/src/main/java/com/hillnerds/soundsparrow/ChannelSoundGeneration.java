@@ -10,10 +10,10 @@ import java.util.Random;
  * Created by aga on 06/02/17.
  */
 
+/**
+ * A class containing all the methods to do with generating MIDI Sequences for one chanel at a time
+ */
 public class ChannelSoundGeneration {
-
-    int scale;
-    int[] steps;
 
     //a hard coded list of all possible instruments
     private static Instrument[] instrumentList = new Instrument[] {
@@ -26,13 +26,22 @@ public class ChannelSoundGeneration {
             new Instrument("flute", 74, 73, 90)
     };
 
+     // (1100 0000) the first 4 bits of a starting sequence for an instrument change
+    final static int INSTRUMENT_CHANGE_CODE = 192;
+
+    //the amount of notes generated for each channel
+    final static int CHANNEL_NOTE_AMOUNT = 16;
+
+    // (1001 0000) the first 4 bits of a note on sequence
+    final static int NOTE_ON_START_CODE = 144;
+
     /**
      * This function chooses a rondom instrument form a hardcoded instrumentList.
      * @param random - a random generator Object
      * @return - return an Instrument object from instrumentList
      */
     public static Instrument generateRandomInstrument(Random random){
-        int instrumentNumber = random.nextInt((6 - 0) + 1) + 0;
+        int instrumentNumber = random.nextInt((instrumentList.length - 0) + 1) + 0;
         return instrumentList[instrumentNumber];
     }
 
@@ -46,26 +55,28 @@ public class ChannelSoundGeneration {
 
         int timestampCounter = 0;
 
-        StartingSequence instrument_change = new StartingSequence(192 + c.number, c.instrument, timestampCounter);
+        StartingSequence instrument_change = new StartingSequence(INSTRUMENT_CHANGE_CODE + c.number,
+                c.instrument, timestampCounter);
         midiSequenceArray.add(instrument_change);
 
         /**
          * TODO: implement the way of setting the length of the track differently (ie. a number of
-         * bars so that tunes are synchronised)
+         * bars so that tunes are synchronised).
+         * For now every channel is just 16 notes long
          */
-        for (int i = 0; i < 16; i = i+2) {
-            int startingCode = generateStartingCode(c.number);
+        for (int noteCounter = 0; noteCounter < CHANNEL_NOTE_AMOUNT; noteCounter += 2) {
+            int noteStartingCode = generateNoteStartingCode(c.number);
             int pitch = generatePitch(c);
             int velocity = generateVelocity(c.randomGenerator);
 
             int duration = generateNoteDuration(c.randomGenerator);
 
             //create a Note on sequence (start of the note)
-            Note note_on = new Note(startingCode, pitch, velocity, timestampCounter);
+            Note note_on = new Note(noteStartingCode, pitch, velocity, timestampCounter);
             timestampCounter = timestampCounter + duration;
 
             //create a Note off sequence (same as Note on but with velocity at 0)
-            Note note_off = new Note(startingCode, pitch, 0, timestampCounter);
+            Note note_off = new Note(noteStartingCode, pitch, 0, timestampCounter);
 
             midiSequenceArray.add(note_on);
             midiSequenceArray.add(note_off);
@@ -79,8 +90,8 @@ public class ChannelSoundGeneration {
      * @param channelNumber - the number of tha channel for which the starting seqence will be generated
      * @return - a total starting code value
      */
-    public static int generateStartingCode(int channelNumber){
-        return 144 + channelNumber;
+    public static int generateNoteStartingCode(int channelNumber){
+        return NOTE_ON_START_CODE + channelNumber;
     }
 
     /**
@@ -89,7 +100,8 @@ public class ChannelSoundGeneration {
      * @return - a value between 0 and 127
      */
     public static int generatePitch(Channel c){
-        int randomGeneratedPitch = c.scaleValues[c.randomGenerator.nextInt((7 - 0) + 1)];
+        int arrayIndex = c.randomGenerator.nextInt((c.scaleValues.length) + 1);
+        int randomGeneratedPitch = c.scaleValues[arrayIndex];
 
         return randomGeneratedPitch;
     }
@@ -143,17 +155,19 @@ public class ChannelSoundGeneration {
      */
     public static int[] chooseScaleStep(String emotion) {
         //return 1 for major 2 for minor
-        int[] step_major = new int[] {2,2,1,2,2,2,1};
-        int[] step_minor = new int[] {2,1,2,2,1,2,2};
 
         int[] step_array;
 
-        if (emotion == "happy"){
-            step_array = step_major;
-        } else {
-            step_array = step_minor;
+        switch (emotion){
+            case "happy":
+                //returns a major scale
+                return new int[] {2,2,1,2,2,2,1};
+            case "sad":
+                //returns a minor scale
+                return new int[] {2,1,2,2,1,2,2};
+            default:
+                return new int[] {2,2,1,2,2,2,1};
         }
-        return step_array;
     }
 
     /**

@@ -16,14 +16,13 @@ import java.util.Comparator;
 import java.util.Random;
 import java.util.UUID;
 
-
+/**
+ * A class responsible for synthesizing the MIDI Sequence files produced by SoundGeneration and
+ * ChannelSoundGeneration
+ */
 public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartListener {
     protected MidiDriver midi;
 
-    protected long userId = MainActivity.uuid_long;
-    //protected long randomSeed = userId;
-
-    //public Random randomGenerator;
     int channelCounter = 0;
 
     private Thread playThread;
@@ -35,10 +34,10 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sound);
 
+        UUID uuid = BluetoothHelper.getDeviceUUID(this);
         //create a channel number reserved for the user of the app
         // TODO: dynamically get emotion (hardcoded for now)
-
-        activeChannelList.add(new Channel(userId, "happy", 0));
+        activeChannelList.add(new Channel(uuid, "happy", 0));
 
         midi = new MidiDriver();
 
@@ -75,12 +74,10 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
             public void onSparrowDiscovered(UUID uuid, String emotion, int rssi) {
                 Log.i("Sound", "A sparrow has been discovered");
 
-                long hi = uuid.getMostSignificantBits() & Long.MAX_VALUE;
-
                 /* Every time a new Sparrow is discovered a new Channel is added
                  * to the list of active Channels.
                  */
-                Channel discoveredChannel = new Channel(hi, emotion, channelCounter);
+                Channel discoveredChannel = new Channel(uuid, emotion, channelCounter);
                 activeChannelList.add(discoveredChannel);
                 //TODO: implement the visualisation element again
                 //generateColor(emotion);
@@ -144,13 +141,15 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
     /**
      * A safe sleep function including a try catch statement to capture exceptions.
      * Created to avoid using try catch every time a Thread sleeps.
-     * @param time - a sleep time
+     * Catches Exceptions: InterruptedException, occurs when a different process wants to interrupt
+     * this Thread
+     * @param time - a sleep time in miliseconds.
      */
     public void safeSleep(int time) {
         try {
             Thread.sleep(time);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -166,9 +165,7 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         public void run() {
             int currentTimestamp = 0;
 
-
             for (MidiSequence m : midiSequenceFile) {
-
                 if (m instanceof StartingSequence) {
                     Log.i("MidiParser", MessageFormat.format("The SS of MidiSequenceFile {0}, {1}",m.startingCode, m.timestamp));
                     sendMidi(m.startingCode, ((StartingSequence) m).instrument.instrumentMidiCode);

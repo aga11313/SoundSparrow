@@ -29,10 +29,6 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.READ_PHONE_STATE
     };
 
-    public static UUID uuid;
-    public String uuid_str;
-    public static long uuid_long;
-
     private final String PREF_NAME = "SparrowPreferences";
     private SharedPreferences appPref;
     private TextView greetings;
