@@ -23,7 +23,7 @@ public class ChannelSoundGeneration {
             new Instrument("trumpet", 57, 64, 80),
             new Instrument("violin", 41, 50, 65),
             new Instrument("saxophone", 66, 45, 60),
-            new Instrument("flute", 74, 73, 90)
+            new Instrument("flute", 74, 60, 75)
     };
 
      // (1100 0000) the first 4 bits of a starting sequence for an instrument change
@@ -41,7 +41,7 @@ public class ChannelSoundGeneration {
      * @return - return an Instrument object from instrumentList
      */
     public static Instrument generateRandomInstrument(Random random){
-        int instrumentNumber = random.nextInt((instrumentList.length - 0) + 1) + 0;
+        int instrumentNumber = random.nextInt(instrumentList.length);
         return instrumentList[instrumentNumber];
     }
 
@@ -64,7 +64,7 @@ public class ChannelSoundGeneration {
          * bars so that tunes are synchronised).
          * For now every channel is just 16 notes long
          */
-        for (int noteCounter = 0; noteCounter < CHANNEL_NOTE_AMOUNT; noteCounter += 2) {
+        for (int noteCounter = 0; noteCounter < CHANNEL_NOTE_AMOUNT; noteCounter++) {
             int noteStartingCode = generateNoteStartingCode(c.number);
             int pitch = generatePitch(c);
             int velocity = generateVelocity(c.randomGenerator);
@@ -100,7 +100,7 @@ public class ChannelSoundGeneration {
      * @return - a value between 0 and 127
      */
     public static int generatePitch(Channel c){
-        int arrayIndex = c.randomGenerator.nextInt((c.scaleValues.length) + 1);
+        int arrayIndex = c.randomGenerator.nextInt(c.scaleValues.length);
         int randomGeneratedPitch = c.scaleValues[arrayIndex];
 
         return randomGeneratedPitch;
@@ -127,7 +127,7 @@ public class ChannelSoundGeneration {
     public static int generateNoteDuration(Random random_generator){
         //TODO: make the duration fit within measures
         int[] duration = new int[] {200, 400, 400};
-        int random_duration = duration[random_generator.nextInt((2-0) + 1) + 0];
+        int random_duration = duration[random_generator.nextInt(duration.length)];
 
         return random_duration;
     }
@@ -154,10 +154,6 @@ public class ChannelSoundGeneration {
      * @return - an array of steps for an appropriate scale
      */
     public static int[] chooseScaleStep(String emotion) {
-        //return 1 for major 2 for minor
-
-        int[] step_array;
-
         switch (emotion){
             case "happy":
                 //returns a major scale
@@ -175,14 +171,14 @@ public class ChannelSoundGeneration {
      *
      * @param startingNote - the forst note of the scale
      * @param steps - an array representing a major or minor scale
-     * @return - an array of values (0 to 127) representing the alowed pitch values
+     * @return - an array of values (0 to 127) representing the allowed pitch values
      */
     public static int[] generateScale (int startingNote, int[] steps){
         int[] completedScale = new int[7];
 
         int stepsCounter = 0;
 
-        for (int i = 0; i < 7; i++){
+        for (int i = 0; i < completedScale.length; i++){
             stepsCounter = stepsCounter + steps[i];
             completedScale[i] = startingNote + stepsCounter;
         }

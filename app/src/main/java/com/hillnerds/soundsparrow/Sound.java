@@ -18,9 +18,9 @@ import java.util.UUID;
 
 /**
  * A class responsible for synthesizing the MIDI Sequence files produced by SoundGeneration and
- * ChannelSoundGeneration
+ * ChannelSoundGeneration.
  */
-public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartListener {
+public class Sound extends AppCompatActivity {
     protected MidiDriver midi;
 
     int channelCounter = 0;
@@ -28,6 +28,8 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
     private Thread playThread;
 
     public ArrayList<Channel> activeChannelList = new ArrayList<>();
+
+    private boolean midiSynthesizingStop = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,12 +42,6 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         activeChannelList.add(new Channel(uuid, "happy", 0));
 
         midi = new MidiDriver();
-
-        if (midi != null) {
-            midi.setOnMidiStartListener(this);
-        } else {
-            Log.w("Sound", "midi object was null");
-        }
     }
 
     /**
@@ -133,11 +129,6 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         midi.write(msg);
     }
 
-    @Override
-    public void onMidiStart() {
-        // TODO: Decide if this needs to do anything
-    }
-
     /**
      * A safe sleep function including a try catch statement to capture exceptions.
      * Created to avoid using try catch every time a Thread sleeps.
@@ -153,8 +144,6 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
         }
     }
 
-
-
     public class MidiParser implements Runnable {
         private ArrayList<MidiSequence> midiSequenceFile;
 
@@ -164,18 +153,16 @@ public class Sound extends AppCompatActivity implements MidiDriver.OnMidiStartLi
 
         public void run() {
             int currentTimestamp = 0;
-
-            for (MidiSequence m : midiSequenceFile) {
-                if (m instanceof StartingSequence) {
-                    Log.i("MidiParser", MessageFormat.format("The SS of MidiSequenceFile {0}, {1}",m.startingCode, m.timestamp));
-                    sendMidi(m.startingCode, ((StartingSequence) m).instrument.instrumentMidiCode);
-                } else if (m instanceof  Note){
-                    Log.i("MidiParser", MessageFormat.format("The N of MidiSequenceFile {0}, {1}, {2}",
-                            ((Note) m).pitch, ((Note) m).velocity, m.timestamp));
-                    safeSleep(m.timestamp - currentTimestamp);
-                    sendMidi(m.startingCode, ((Note) m).pitch, ((Note) m).velocity);
+            while (!midiSynthesizingStop) {
+                for (MidiSequence m : midiSequenceFile) {
+                    if (m instanceof StartingSequence) {
+                        sendMidi(m.startingCode, ((StartingSequence) m).instrument.instrumentMidiCode);
+                    } else if (m instanceof Note) {
+                        safeSleep(m.timestamp - currentTimestamp);
+                        sendMidi(m.startingCode, ((Note) m).pitch, ((Note) m).velocity);
+                    }
+                    currentTimestamp = m.timestamp;
                 }
-                currentTimestamp = m.timestamp;
             }
         }
     }
