@@ -1,46 +1,40 @@
 package com.hillnerds.soundsparrow;
 
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Created by aga on 28/01/17.
  */
 
+/**
+ * A class whose instances represent one of 15 MIDI channels that can be created.
+ */
 public class Channel {
 
-    long id;
+    UUID uuid;
     String emotion;
     int number;
-    int instrument;
-    int range_min;
-    int range_max;
+    Instrument instrument;
+    Random randomGenerator;
+    int[] steps; //dependant on the choice of minor or major
+    int startingNote;
+    int[] scaleValues;
 
-    public Channel (long id, String emotion, int number, int instrument){
+    public Channel (UUID uuid, String emotion, int number){
 
-        this.id = id;
+        this.uuid = uuid;
         this.emotion = emotion;
         this.number = number;
-        this.instrument = instrument;
+
+        this.randomGenerator = new Random(uuid.getLeastSignificantBits());
+
+        this.instrument = ChannelSoundGeneration.generateRandomInstrument(this.randomGenerator);
+        this.steps = ChannelSoundGeneration.chooseScaleStep(this.emotion);
+        this.startingNote = ChannelSoundGeneration.chooseStartingNote(this.instrument, this.randomGenerator);
+        this.scaleValues = ChannelSoundGeneration.generateScale(this.startingNote, this.steps);
 
     }
 
-    public Channel (){
-
-
-    }
-
-    public void generateInstrument(Random random){
-
-        int instrument = random.nextInt((6 - 0) + 1) + 0;
-        //int instrument  = 6;
-
-        this.instrument = SoundGeneration.instrument_list_midi_codes[instrument];
-
-        int[] range_array = SoundGeneration.instrument_range_list[instrument];
-
-        range_min = range_array[0];
-        range_max = range_array[1];
-
-    }
 
 }
