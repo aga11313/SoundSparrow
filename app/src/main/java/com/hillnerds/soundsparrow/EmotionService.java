@@ -52,6 +52,7 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
     private static final String storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=soundsparrow;AccountKey=jZzZsr8d9TCaX/8lrIWkoZ5My9AY08nX5XHrr96rnWsG0yXl6vmp7iwFpzMK+EFPM75BNLNajEPyMnEgQDXsbg==";
     private static final String emotionPrimaryKey = "d0372ad59f6141889b33032fb742e04f";
     private Context ctx;
+    private UUID deviceUUID;
 
     public EmotionService(Context c) {
         this.ctx = c;
@@ -91,9 +92,9 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
             // Retrieve reference to a previously created container.
             CloudBlobContainer container = blobClient.getContainerReference(storageContainer);
 
-            UUID devUUID = BluetoothHelper.getDeviceUUID(ctx);
+            deviceUUID = BluetoothHelper.getDeviceUUID(ctx);
             // Create or overwrite the "face.jpeg" blob with contents from a local file.
-            CloudBlockBlob blob = container.getBlockBlobReference(devUUID.toString());
+            CloudBlockBlob blob = container.getBlockBlobReference(deviceUUID.toString());
             File source = new File(imgPath);
             blob.upload(new FileInputStream(source), source.length());
         }
@@ -106,7 +107,6 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
 
     protected String getEmotionScore(){
         HttpClient httpclient = HttpClients.createDefault();
-        System.out.println("Starting now");
         String r = "";
         try {
             URIBuilder builder = new URIBuilder(
@@ -117,10 +117,9 @@ public class EmotionService extends AsyncTask<String, Integer, String> {
             request.setHeader("Content-Type", "application/json");
             request.setHeader("Ocp-Apim-Subscription-Key", emotionPrimaryKey);
 
-            System.out.println("Before requesting the body");
             // Request body
             StringEntity reqEntity = new StringEntity(
-                    "{ \"url\": \"" + storageURL + "/" + "face.jpg" + "\" }");
+                    "{ \"url\": \"" + storageURL + "/" + deviceUUID.toString() + "\" }");
             request.setEntity(reqEntity);
 
             HttpResponse response = httpclient.execute(request);
